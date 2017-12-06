@@ -28,7 +28,10 @@
   <!-- Pack and upload build outputs to version repo -->
   <!--TODO: On official builds only -->
   <Target Name="NugetUpload" AfterTargets="NugetPack">
-    <Exec Command='"$(NugetToolPath)" add "$(OutDir)$(MSBuildProjectName).$(NugetVersion).nupkg" -ConfigFile "$(NugetConfig)" -Source "$(NugetSource)"'/>
+    <ItemGroup>
+      <MyNugetPackages Include="$(OutDir)$(MSBuildProjectName).*.nupkg" />
+    </ItemGroup>
+    <Exec Command='"$(NugetToolPath)" add "%(MyNugetPackages.FullPath)" -ConfigFile "$(NugetConfig)" -Source "$(NugetSource)"'/>
     <!--TODO: Git Push -->
   </Target>
 
