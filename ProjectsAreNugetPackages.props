@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <Import Project="$(SolutionDir)packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets"/>
+  <Import Project="$(SolutionDir)packages\TidyBuild.1.0.4\build\TidyBuild.props"/>
+
+  <PropertyGroup>
+    <NugetToolPath Condition="'$(NugetToolPath)'==''">$(SolutionDir)packages\NuGet.CommandLine.4.4.1\tools\NuGet.exe</NugetToolPath>
+    <NugetSource Condition="'$(NugetSource)'==''">$(SolutionDir)NuGet-Repo</NugetSource>
+    <NugetSourceName Condition="'$(NugetSourceName)'==''">Nuget-$(MSBuildProjectName)</NugetSourceName>
+    <NugetConfig Condition="'$(NugetConfig)'==''">$(SolutionDir)NuGet.Config</NugetConfig>
+    
+    <NuSpecPath Condition="'$(NuSpecPath)'=='' And Exists('$(MSBuildProjectDirectory)\$(MSBuildProjectName).nuspec')">$(MSBuildProjectDirectory)\$(MSBuildProjectName).nuspec</NuSpecPath>
+	<NuSpecPath Condition="'$(NuSpecPath)'==''">$(IntDir)$(MSBuildProjectName).nuspec</NuSpecPath>
+    
+	<NugetVersion>$(FullVersion)</NugetVersion>
+    <NugetVersion Condition="'$(Configuration)'=='Debug'">$(FullVersion)-debug</NugetVersion>
+  </PropertyGroup>
+
+  <!-- Restore nuget packages from version repo -->  
+  <Target Name="NugetRestore" BeforeTargets="PrepareForBuild;BeforeCompile">
+    <Exec Command='"$(NugetToolPath)" sources Add -Name "$(NugetSourceName)" -Source "$(NugetSource)" -ConfigFile "$(NugetConfig)"' ContinueOnError="true" />
+    <Exec Command='"$(NugetToolPath)" sources Update -Name "$(NugetSourceName)" -Source "$(NugetSource)" -ConfigFile "$(NugetConfig)"'/>
+    <Exec Command='"$(NugetToolPath)" update "$(MSBuildProjectDirectory)\packages.config" -ConfigFile "$(NugetConfig)" -Source "$(NugetSourceName)" -NonInteractive -Safe' EnvironmentVariables="SolutionDir=$(SolutionDir)" Condition="Exists('$(MSBuildProjectDirectory)\packages.config')"/>
+    <Exec Command='"$(NugetToolPath)" install "$(MSBuildProjectDirectory)\packages.config" -ConfigFile "$(NugetConfig)" -Source "$(NugetSourceName)" -OutputDirectory "$(SolutionDir)packages"'/>
+    <!--TODO: Git-Commit on official builds -->
+  </Target>
+
+  <!-- Pack and upload build outputs to version repo -->
+  <!--TODO: On official builds only -->
+  <Target Name="NugetUpload" AfterTargets="NugetPack">
+    <Exec Command='"$(NugetToolPath)" add "$(OutDir)$(MSBuildProjectName).$(NugetVersion).nupkg" -ConfigFile "$(NugetConfig)" -Source "$(NugetSource)"'/>
+    <!--TODO: Git Push -->
+  </Target>
+
+  <!-- Create .nuspec file if missing -->
+  <Target Name="EnsureNugetSpec" AfterTargets="Build" Condition="!Exists('$(NuSpecPath)')">
+    <PropertyGroup>
+      <NuspecIn Condition="'$(MSBuildProjectExtension)'=='.vcxproj' Or '$(MSBuildProjectExtension)'=='.vcproj'">$(MSBuildThisFileDirectory)\NativeProject.nuspec.xml</NuspecIn>
+      <NuspecIn Condition="'$(MSBuildProjectExtension)'=='.csproj' Or '$(MSBuildProjectExtension)'=='.vbproj' Or '$(CLRSupport)'=='true'">$(MSBuildThisFileDirectory)\NetProject.nuspec.xml</NuspecIn>
+    </PropertyGroup>
+    <XslTransformation XmlInputPaths="$(NuspecIn)" XslInputPath="$(MSBuildThisFileDirectory)Nuspec.xslt" OutputPaths="$(NuSpecPath)" Parameters="&lt;Parameter Name='packagesConfigPath' Value='$(MSBuildProjectDirectory)\packages.config'/&gt;" UseTrustedSettings="true"/>
+  </Target>
+
+  <!-- Pack nuget with parameters -->
+  <Target Name="NugetPack" AfterTargets="EnsureNugetSpec">
+    <GitVersion LocalPath="$(MSBuildProjectDirectory)" ToolPath="C:\Program Files\Git\bin" Short="False" >
+      <Output TaskParameter="CommitHash" PropertyName="GitHash"/>
+    </GitVersion>
+    <ItemGroup>
+      <NugetPackProperty Include="Configuration=$(Configuration)"/>
+      <NugetPackProperty Include="id=$(MSBuildProjectName)"/>
+      <NugetPackProperty Include="title=Hexagon Meterology $(MSBuildProjectName)"/>
+      <NugetPackProperty Include="author=Hexagon Meterology"/>
+      <NugetPackProperty Include="projectUrl=$(MSBuildProjectName)"/>
+      <NugetPackProperty Include="description=Hexagon Meterology $(MSBuildProjectName)"/>
+      <NugetPackProperty Include="OutDir=$(OutDir)"/>
+      <NugetPackProperty Include="RootDir=$(SolutionDir)"/>
+      <NugetPackProperty Include="ProjectName=$(MSBuildProjectName)"/>
+      <NugetPackProperty Include="GitHash=$(GitHash)"/>
+    </ItemGroup>
+    <Exec Command='"$(NugetToolPath)" pack "$(NuSpecPath)" -Version "$(NugetVersion)" -OutputDirectory "$(OutDir)\" -Properties "@(NugetPackProperty)"' WorkingDirectory="$(MSBuildProjectDirectory)"/>
+  </Target>
+
+</Project>

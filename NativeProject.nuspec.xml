@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>1.0.0</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <copyright>Copyright $author$ 2017</copyright>
+    <tags>native $GitHash$</tags>
+  </metadata>
+
+  <files>
+    <file src="$OutDir$$ProjectName$.exe*" target="build" />
+    <file src="$OutDir$$ProjectName$.dll*" target="build" />
+    <file src="$OutDir$$ProjectName$.lib*" target="build" />
+    <file src="$OutDir$$ProjectName$.pdb*" target="build" />
+    <file src="$RootDir$native-nuget-targets.props" target="build\$ProjectName$.props" />
+  </files>                              
+</package>                              
