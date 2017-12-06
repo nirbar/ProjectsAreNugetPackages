@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <Import Project="$(SolutionDir)packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets"/>
-  <Import Project="$(SolutionDir)packages\TidyBuild.1.0.4\build\TidyBuild.props"/>
+  <Import Project="$(SolutionDir)packages\TidyBuild.1.0.5\build\TidyBuild.props"/>
 
   <PropertyGroup>
     <NugetToolPath Condition="'$(NugetToolPath)'==''">$(SolutionDir)packages\NuGet.CommandLine.4.4.1\tools\NuGet.exe</NugetToolPath>
     <NugetSource Condition="'$(NugetSource)'==''">$(SolutionDir)NuGet-Repo</NugetSource>
-    <NugetSourceName Condition="'$(NugetSourceName)'==''">Nuget-$(MSBuildProjectName)</NugetSourceName>
-    <NugetConfig Condition="'$(NugetConfig)'==''">$(SolutionDir)NuGet.Config</NugetConfig>
-    
+    <NugetSourceName Condition="'$(NugetSourceName)'==''">Nuget-$(SolutionName)</NugetSourceName>
+    <NugetConfig Condition="'$(NugetConfig)'==''">$(MSBuildThisFileDirectory)\NuGet.Config</NugetConfig>
+
     <NuSpecPath Condition="'$(NuSpecPath)'=='' And Exists('$(MSBuildProjectDirectory)\$(MSBuildProjectName).nuspec')">$(MSBuildProjectDirectory)\$(MSBuildProjectName).nuspec</NuSpecPath>
-	<NuSpecPath Condition="'$(NuSpecPath)'==''">$(IntDir)$(MSBuildProjectName).nuspec</NuSpecPath>
-    
-	<NugetVersion>$(FullVersion)</NugetVersion>
+    <NuSpecPath Condition="'$(NuSpecPath)'==''">$(IntDir)$(MSBuildProjectName).nuspec</NuSpecPath>
+
+    <NugetVersion>$(FullVersion)</NugetVersion>
     <NugetVersion Condition="'$(Configuration)'=='Debug'">$(FullVersion)-debug</NugetVersion>
   </PropertyGroup>
 
-  <!-- Restore nuget packages from version repo -->  
+  <!-- Restore nuget packages from version repo -->
   <Target Name="NugetRestore" BeforeTargets="PrepareForBuild;BeforeCompile">
     <Exec Command='"$(NugetToolPath)" sources Add -Name "$(NugetSourceName)" -Source "$(NugetSource)" -ConfigFile "$(NugetConfig)"' ContinueOnError="true" />
     <Exec Command='"$(NugetToolPath)" sources Update -Name "$(NugetSourceName)" -Source "$(NugetSource)" -ConfigFile "$(NugetConfig)"'/>
-    <Exec Command='"$(NugetToolPath)" update "$(MSBuildProjectDirectory)\packages.config" -ConfigFile "$(NugetConfig)" -Source "$(NugetSourceName)" -NonInteractive -Safe' EnvironmentVariables="SolutionDir=$(SolutionDir)" Condition="Exists('$(MSBuildProjectDirectory)\packages.config')"/>
-    <Exec Command='"$(NugetToolPath)" install "$(MSBuildProjectDirectory)\packages.config" -ConfigFile "$(NugetConfig)" -Source "$(NugetSourceName)" -OutputDirectory "$(SolutionDir)packages"'/>
+    <Exec Command='"$(NugetToolPath)" update "$(MSBuildProjectDirectory)\packages.config" -ConfigFile "$(NugetConfig)" -NonInteractive -Safe' EnvironmentVariables="SolutionDir=$(SolutionDir)" Condition="Exists('$(MSBuildProjectDirectory)\packages.config')"/>
+    <Exec Command='"$(NugetToolPath)" install "$(MSBuildProjectDirectory)\packages.config" -ConfigFile "$(NugetConfig)" -OutputDirectory "$(SolutionDir)packages"'/>
     <!--TODO: Git-Commit on official builds -->
   </Target>
 
@@ -57,6 +57,7 @@
       <NugetPackProperty Include="RootDir=$(SolutionDir)"/>
       <NugetPackProperty Include="ProjectName=$(MSBuildProjectName)"/>
       <NugetPackProperty Include="GitHash=$(GitHash)"/>
+      <NugetPackProperty Include="MyDir=$(MSBuildThisFileDirectory)\"/>
     </ItemGroup>
     <Exec Command='"$(NugetToolPath)" pack "$(NuSpecPath)" -Version "$(NugetVersion)" -OutputDirectory "$(OutDir)\" -Properties "@(NugetPackProperty)"' WorkingDirectory="$(MSBuildProjectDirectory)"/>
   </Target>

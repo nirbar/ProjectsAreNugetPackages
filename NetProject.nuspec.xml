@@ -17,6 +17,6 @@
     <file target="build" src="$OutDir$$ProjectName$.exe*" />
     <file target="build" src="$OutDir$$ProjectName$.pdb*" />
     <file target="build" src="$OutDir$$ProjectName$.metagen*" />
-    <file target="build\$ProjectName$.props" src="$RootDir$net-nuget-targets.props" />
+    <file target="build\$ProjectName$.xml" src="$MyDir$net-nuget-targets.props" />
   </files>
 </package>

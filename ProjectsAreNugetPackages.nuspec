@@ -11,8 +11,9 @@
     <copyright>Copyright Nir Bar 2017</copyright>
 	<projectUrl>https://github.com/nirbar/ProjectsAreNugetPackages</projectUrl>
     <tags>$GitHash$</tags>
+	<developmentDependency>true</developmentDependency>
 	<dependencies>
-		<dependency id="TidyBuild" version="1.0.4"/>
+		<dependency id="TidyBuild" version="1.0.5"/>
 		<dependency id="NuGet.CommandLine" version="4.4.1"/>
 		<dependency id="MSBuildTasks" version="1.5.0.235"/>
 	</dependencies>
@@ -23,5 +24,9 @@
     <file src="Nuspec.xslt" target="build" />
     <file src="NativeProject.nuspec.xml" target="build" />
     <file src="NetProject.nuspec.xml" target="build" />
+    <file src="Nuget.config" target="build" />
+    <file src="native-nuget-targets.xml" target="build" />
+    <file src="net-nuget-targets.xml" target="build" />
+	
   </files>                              
 </package>                              
