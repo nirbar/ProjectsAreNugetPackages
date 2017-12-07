@@ -29,7 +29,7 @@
   </PropertyGroup>
 
   <!-- Restore nuget packages from version repo -->
-  <Target Name="NugetRestore" BeforeTargets="PrepareForBuild;BeforeCompile">
+  <Target Name="NugetRestore" AfterTargets="ResolveProjectReferences">
     <Exec Command='"$(NugetToolPath)" sources Add -Name "$(NugetSourceName)" -Source "$(NugetSource)" -ConfigFile "$(NugetConfig)"' ContinueOnError="true" />
     
     <Exec Command='"$(NugetToolPath)" sources Add -Name "Local-Build" -Source "$(NugetBuildFolder)\" -ConfigFile "$(NugetConfig)"' ContinueOnError="true" />

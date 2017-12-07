@@ -29,30 +29,43 @@ namespace MSBuildTasks
                 }
 
                 string id = n.Attributes["id"]?.Value;
-                string rootFolder = Path.GetDirectoryName(Path.GetDirectoryName(PackagesConfig));
-                string refFolder = Path.Combine(rootFolder, id);
-                if (!Directory.Exists(refFolder))
-                {
-                    Log.LogMessage($"Directory not found when attempting to resolve nuget dependencies as project references: {refFolder}");
-                    continue;
-                }
 
-                string[] refProjects = Directory.GetFiles(refFolder, $"{id}.*proj", SearchOption.TopDirectoryOnly);
-                if (refProjects?.Length > 1)
+                foreach (ITaskItem fldr in ProjectsBaseFolders)
                 {
-                    Log.LogWarning($"Too many files matching {refFolder}\\{id}.*proj when attempting to resolve nuget dependencies as project references. Picking one");
-                }
+                    string rootFolder = fldr.ItemSpec;
+                    string refFolder = Path.Combine(rootFolder, id);
+                    if (!Directory.Exists(refFolder))
+                    {
+                        Log.LogMessage($"Directory not found when attempting to resolve nuget dependencies as project references: {refFolder}");
+                        continue;
+                    }
 
-                if (refProjects?.Length > 0)
-                {
-                    string refProj = refProjects[0];
-                    Log.LogMessage($"Detected reference project: {refProj}");
-                    targetOutputs_.Add(new TaskItem(refProj));
+                    string[] refProjects = Directory.GetFiles(refFolder, $"{id}.*proj", SearchOption.TopDirectoryOnly);
+                    if (refProjects?.Length > 1)
+                    {
+                        Log.LogWarning($"Too many files matching {refFolder}\\{id}.*proj when attempting to resolve nuget dependencies as project references. Picking one");
+                    }
+
+                    if (refProjects?.Length > 0)
+                    {
+                        string refProj = refProjects[0];
+                        Log.LogMessage($"Detected reference project: {refProj}");
+
+                        TaskItem pr = new TaskItem(id);
+                        pr.SetMetadata("Include", refProj);
+                        pr.SetMetadata("Name", id);
+                        pr.SetMetadata("Package", refProj);
+                        targetOutputs_.Add(pr);
+                        break;
+                    }
                 }
             }
 
             return true;
         }
+
+        [Required]
+        public ITaskItem[] ProjectsBaseFolders { get; set; }
 
         [Required]
         public string PackagesConfig { get; set; }

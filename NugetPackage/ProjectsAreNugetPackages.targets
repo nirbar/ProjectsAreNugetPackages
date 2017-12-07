@@ -2,17 +2,17 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
 
   <UsingTask TaskName="ResolveNugetReferences" AssemblyFile="$(MSBuildThisFileDirectory)\..\tools\MSBuildTasks.dll" />
+
   <Target Name="ResolveProjectReferences" DependsOnTargets="AssignProjectConfiguration">
-    <ResolveNugetReferences PackagesConfig="$(MSBuildProjectDirectory)\packages.config">
-      <Output TaskParameter="TargetOutputs" ItemName="_ResolvedProjectReferences" />
+    <ResolveNugetReferences PackagesConfig="$(MSBuildProjectDirectory)\packages.config" ProjectsBaseFolders="$(SolutionDir)">
+      <Output TaskParameter="TargetOutputs" ItemName="_ResolvedProjectReference" />
     </ResolveNugetReferences>
 
-    <MSBuild Projects="@(_ResolvedProjectReferences)"
-             Targets="GetTargetPath"
-             Properties="Configuration=$(Configuration);Platform=$(Platform)"
-             Condition="('$(BuildingSolutionFile)' == 'true' or '$(BuildingInsideVisualStudio)' == 'true' or '$(BuildProjectReferences)' != 'true') and '@(_ResolvedProjectReferences)' != '' "
-             ContinueOnError="!$(BuildingProject)">
-      <Output TaskParameter="TargetOutputs" ItemName="_GatheredProjectReferencePaths" />
-    </MSBuild>
+    <Message Text="Building project %(_ResolvedProjectReference.Include) target '%(_ResolvedProjectReference.Targets)'" Condition="'%(_ResolvedProjectReference.Include)' != '' "/>
+    <MSBuild Projects="%(_ResolvedProjectReference.Include)"
+             Targets="%(_ResolvedProjectReference.Targets)"
+             Properties="Configuration=$(Configuration);Configuration=$(Configuration);SolutionDir=$(SolutionDir)"
+             ContinueOnError="$(ContinueOnError)"
+             Condition="'%(_ResolvedProjectReference.Include)' != '' "/>
   </Target>
 </Project>
