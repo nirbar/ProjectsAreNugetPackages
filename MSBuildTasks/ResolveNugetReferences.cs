@@ -29,7 +29,7 @@ namespace MSBuildTasks
                 }
 
                 string id = n.Attributes["id"]?.Value;
-                string rootFolder = Path.GetDirectoryName(PackagesConfig);
+                string rootFolder = Path.GetDirectoryName(Path.GetDirectoryName(PackagesConfig));
                 string refFolder = Path.Combine(rootFolder, id);
                 if (!Directory.Exists(refFolder))
                 {
@@ -46,7 +46,7 @@ namespace MSBuildTasks
                 if (refProjects?.Length > 0)
                 {
                     string refProj = refProjects[0];
-                    Log.LogWarning($"Detected reference project: {refProj}");
+                    Log.LogMessage($"Detected reference project: {refProj}");
                     targetOutputs_.Add(new TaskItem(refProj));
                 }
             }
