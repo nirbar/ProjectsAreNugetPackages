@@ -7,4 +7,9 @@
     <AdditionalIncludeDirectories Include="$(MSBuildThisFileDirectory)..\include"/>
   </ItemGroup>
   
+  <!-- Copy binaries to output folder -->
+  <Target AfterTargets="AfterBuild">
+    <Copy SourceFiles="*.dll;*.exe" DestinationFolder="$(OutDir)"/>
+  </Target>
+  
 </Project>
