@@ -35,7 +35,7 @@
     <Exec Command='"$(NugetToolPath)" sources Add -Name "Local-Build" -Source "$(NugetBuildFolder)\" -ConfigFile "$(NugetConfig)"' ContinueOnError="true" />
     <Exec Command='"$(NugetToolPath)" sources Update -Name "Local-Build" -Source "$(NugetBuildFolder)\" -ConfigFile "$(NugetConfig)"'/>
     
-    <Exec Command='"$(NugetToolPath)" update "$(MSBuildProjectDirectory)\packages.config" -ConfigFile "$(NugetConfig)" $(NugetUpdatePreRelease) -NonInteractive -Safe' EnvironmentVariables="SolutionDir=$(SolutionDir)" Condition="Exists('$(MSBuildProjectDirectory)\packages.config')"/>
+    <Exec Command='"$(NugetToolPath)" update "$(MSBuildProjectDirectory)\packages.config" -ConfigFile "$(NugetConfig)" $(NugetUpdatePreRelease) -NonInteractive' EnvironmentVariables="SolutionDir=$(SolutionDir)" Condition="Exists('$(MSBuildProjectDirectory)\packages.config')"/>
     <Exec Command='"$(NugetToolPath)" install "$(MSBuildProjectDirectory)\packages.config" -ConfigFile "$(NugetConfig)" -OutputDirectory "$(SolutionDir)packages"'/>
   </Target>
 
@@ -70,11 +70,14 @@
       <NugetPackProperty Include="projectUrl=$(MSBuildProjectName)"/>
       <NugetPackProperty Include="description=Hexagon Meterology $(MSBuildProjectName)"/>
       <NugetPackProperty Include="OutDir=$(OutDir)"/>
+      <NugetPackProperty Include="IntDir=$(IntDir)"/>
       <NugetPackProperty Include="RootDir=$(SolutionDir)"/>
       <NugetPackProperty Include="ProjectName=$(MSBuildProjectName)"/>
       <NugetPackProperty Include="GitHash=$(GitHash)"/>
       <NugetPackProperty Include="MyDir=$(MSBuildThisFileDirectory)\"/>
     </ItemGroup>
+    <Copy DestinationFiles="$(IntDir)$(MSBuildProjectName).props" SourceFiles="$(MSBuildThisFileDirectory)\native-nuget-targets.xml" Condition="'$(MSBuildProjectExtension)'=='.vcxproj'" />
+    <Copy DestinationFiles="$(IntDir)$(MSBuildProjectName).props" SourceFiles="$(MSBuildThisFileDirectory)\net-nuget-targets.xml" Condition="'$(MSBuildProjectExtension)'!='.vcxproj'" />
     <Exec Command='"$(NugetToolPath)" pack "$(NuSpecPath)" -Version "$(NugetVersion)" -OutputDirectory "$(NugetBuildFolder)\" -Properties "@(NugetPackProperty)"' WorkingDirectory="$(MSBuildProjectDirectory)"/>
   </Target>
 

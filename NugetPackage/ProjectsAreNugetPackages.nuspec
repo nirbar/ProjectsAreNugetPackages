@@ -9,24 +9,26 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Pack project outputs to Nuget packages.</description>
     <copyright>Copyright Nir Bar 2017</copyright>
-	<projectUrl>https://github.com/nirbar/ProjectsAreNugetPackages</projectUrl>
+    <projectUrl>https://github.com/nirbar/ProjectsAreNugetPackages</projectUrl>
     <tags>$GitHash$</tags>
-	<developmentDependency>true</developmentDependency>
-	<dependencies>
-		<dependency id="TidyBuild" version="1.0.5"/>
-		<dependency id="NuGet.CommandLine" version="4.4.1"/>
-		<dependency id="MSBuildTasks" version="1.5.0.235"/>
-	</dependencies>
+    <developmentDependency>true</developmentDependency>
+    <dependencies>
+      <dependency id="TidyBuild" version="1.0.5"/>
+      <dependency id="NuGet.CommandLine" version="4.4.1"/>
+      <dependency id="MSBuildTasks" version="1.5.0.235"/>
+    </dependencies>
   </metadata>
 
   <files>
     <file src="ProjectsAreNugetPackages.props" target="build" />
+    <file src="ProjectsAreNugetPackages.targets" target="build" />
     <file src="Nuspec.xslt" target="build" />
     <file src="NativeProject.nuspec.xml" target="build" />
     <file src="NetProject.nuspec.xml" target="build" />
     <file src="Nuget.config" target="build" />
     <file src="native-nuget-targets.xml" target="build" />
     <file src="net-nuget-targets.xml" target="build" />
-	
-  </files>                              
-</package>                              
+    <file src="..\build\bin\Release\MSBuildTasks\MSBuildTasks.dll" target="tools" />
+
+  </files>
+</package>

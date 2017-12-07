@@ -17,6 +17,6 @@
     <file src="$OutDir$$ProjectName$.dll*" target="build" />
     <file src="$OutDir$$ProjectName$.lib*" target="build" />
     <file src="$OutDir$$ProjectName$.pdb*" target="build" />
-    <file src="$MyDir$native-nuget-targets.xml" target="build\$ProjectName$.props" />
+    <file src="$IntDir$$ProjectName$.props" target="build" />
   </files>                              
 </package>                              

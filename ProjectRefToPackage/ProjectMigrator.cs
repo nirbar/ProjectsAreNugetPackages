@@ -14,7 +14,6 @@ namespace ProjectRefToPackage
         string projectFile_;
         string projectFolder_;
         PackagesConfig packagesConfig_;
-        //TODO: Solution
         Dictionary<string, string> globalProps_ = new Dictionary<string, string>();
 
         public ProjectMigrator(string prjFile)
@@ -29,7 +28,7 @@ namespace ProjectRefToPackage
 
             packagesConfig_ = new PackagesConfig(Path.Combine(projectFolder_, "packages.config"));
 
-            globalProps_["SolutionDir"] = Path.GetDirectoryName(projectFolder_);
+            globalProps_["SolutionDir"] = Path.GetDirectoryName(projectFolder_); //TODO: Solution
             project_ = new Project(projectFile_, globalProps_, null);
         }
 

@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ProjectRefToPackage")]
+[assembly: AssemblyTitle("MSBuildTasks")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ProjectRefToPackage")]
+[assembly: AssemblyProduct("MSBuildTasks")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -17,7 +17,7 @@ using System.Runtime.InteropServices;
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("ac5d9394-9f96-43c4-bfc3-5ec38173d422")]
+[assembly: Guid("a1105c89-1cc9-4ae4-b83e-7513d46d1e3e")]
 // Version information for an assembly consists of the following four values:
 //
 //      Major Version
