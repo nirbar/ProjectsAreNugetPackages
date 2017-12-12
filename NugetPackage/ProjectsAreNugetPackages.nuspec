@@ -28,6 +28,5 @@
     <file src="Nuget.config" target="build" />
     <file src="native-nuget-targets.xml" target="build" />
     <file src="net-nuget-targets.xml" target="build" />
-    <file src="..\build\bin\Release\MSBuildTasks\MSBuildTasks.dll" target="tools" />
   </files>
 </package>
