@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <Import Project="$(SolutionDir)ProjectsAreNugetPackages.custom.props" Condition="Exists('$(SolutionDir)ProjectsAreNugetPackages.custom.props')"/>
-  <Import Project="$(SolutionDir)packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets"/>
-  <Import Project="$(SolutionDir)packages\TidyBuild.1.0.5\build\TidyBuild.props"/>
+  <Import Project="$(MSBuildThisFileDirectory)\..\..\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets"/>
+  <Import Project="$(MSBuildThisFileDirectory)\..\..\TidyBuild.1.0.5\build\TidyBuild.props"/>
 
   <PropertyGroup Condition="'$(OfficialBuild.ToLower())'=='true'">
     <BuildNugetPackage>true</BuildNugetPackage>
@@ -18,7 +18,7 @@
 
   <PropertyGroup>
     <GitBinFolder Condition="'$(GitBinFolder)'==''">C:\Program Files\Git\bin</GitBinFolder>
-    <NugetToolPath Condition="'$(NugetToolPath)'==''">$(SolutionDir)packages\NuGet.CommandLine.4.4.1\tools\</NugetToolPath>
+    <NugetToolPath Condition="'$(NugetToolPath)'==''">$(MSBuildThisFileDirectory)\..\..\NuGet.CommandLine.4.4.1\tools\</NugetToolPath>
     <NugetSource Condition="'$(NugetSource)'==''">$(SolutionDir)NuGet-Repo</NugetSource>
     <NugetSourceName Condition="'$(NugetSourceName)'==''">Nuget-$(SolutionName)</NugetSourceName>
     <NugetConfig Condition="'$(NugetConfig)'==''">$(MSBuildThisFileDirectory)\NuGet.Config</NugetConfig>

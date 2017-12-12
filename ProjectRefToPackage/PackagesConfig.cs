@@ -43,7 +43,7 @@ namespace ProjectRefToPackage
 
             foreach (XmlNode n in xmlDoc_.DocumentElement.ChildNodes)
             {
-                if ((n is XmlElement) && (n.LocalName.Equals("package")) && (n.Attributes["id"]?.Name?.Equals(packageId) == true))
+                if ((n is XmlElement) && (n.LocalName.Equals("package")) && (n.Attributes["id"]?.Name?.Equals(packageId, StringComparison.OrdinalIgnoreCase) == true))
                 {
                     return;
                 }

@@ -36,15 +36,16 @@ namespace ProjectRefToPackage
         {
             List<ProjectItem> allProjReferences = new List<ProjectItem>();
 
-            foreach(ProjectItem i in project_.AllEvaluatedItems)
+            foreach (ProjectItem i in project_.AllEvaluatedItems)
             {
                 if (i.ItemType.Equals("ProjectReference"))
                 {
                     allProjReferences.Add(i);
                     string refProj = i.GetMetadataValue("FullPath");
 
-                    if (File.Exists(refProj))
+                    if (!string.IsNullOrWhiteSpace(refProj) && File.Exists(refProj))
                     {
+                        Console.WriteLine($"Project {projectFile_}- Converting project reference {refProj} to Nuget package");
                         packagesConfig_.Add(Path.GetFileNameWithoutExtension(refProj));
                     }
                 }
