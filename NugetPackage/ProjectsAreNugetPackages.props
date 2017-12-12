@@ -5,16 +5,20 @@
   <Import Project="$(SolutionDir)packages\TidyBuild.1.0.5\build\TidyBuild.props"/>
 
   <PropertyGroup Condition="'$(OfficialBuild.ToLower())'=='true'">
-    <NugetUpdatePreRelease Condition="'$(Configuration)'=='Debug'">-PreRelease</NugetUpdatePreRelease>
+    <BuildNugetPackage>true</BuildNugetPackage>
+    <UploadNugetPackage>true</UploadNugetPackage>
+    <GitCommitAndPush>true</GitCommitAndPush>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OfficialBuild.ToLower())'!='true'">
-    <NuspecVersionSuffix Condition="'$(NuspecVersionSuffix)'!=''">-local</NuspecVersionSuffix>
-    <NugetUpdatePreRelease>-PreRelease</NugetUpdatePreRelease>
+    <BuildNugetPackage>true</BuildNugetPackage>
+    <UploadNugetPackage>false</UploadNugetPackage>
+    <GitCommitAndPush>false</GitCommitAndPush>
+    <NuspecVersionSuffix Condition="'$(NuspecVersionSuffix)'==''">local</NuspecVersionSuffix>
   </PropertyGroup>
 
   <PropertyGroup>
     <GitBinFolder Condition="'$(GitBinFolder)'==''">C:\Program Files\Git\bin</GitBinFolder>
-    <NugetToolPath Condition="'$(NugetToolPath)'==''">$(SolutionDir)packages\NuGet.CommandLine.4.4.1\tools\NuGet.exe</NugetToolPath>
+    <NugetToolPath Condition="'$(NugetToolPath)'==''">$(SolutionDir)packages\NuGet.CommandLine.4.4.1\tools\</NugetToolPath>
     <NugetSource Condition="'$(NugetSource)'==''">$(SolutionDir)NuGet-Repo</NugetSource>
     <NugetSourceName Condition="'$(NugetSourceName)'==''">Nuget-$(SolutionName)</NugetSourceName>
     <NugetConfig Condition="'$(NugetConfig)'==''">$(MSBuildThisFileDirectory)\NuGet.Config</NugetConfig>
@@ -22,63 +26,10 @@
     <NuSpecPath Condition="'$(NuSpecPath)'=='' And Exists('$(MSBuildProjectDirectory)\$(MSBuildProjectName).nuspec')">$(MSBuildProjectDirectory)\$(MSBuildProjectName).nuspec</NuSpecPath>
     <NuSpecPath Condition="'$(NuSpecPath)'==''">$(IntDir)$(MSBuildProjectName).nuspec</NuSpecPath>
 
-    <NugetVersion>$(FullVersion)$(NuspecVersionSuffix)</NugetVersion>
-    <NugetVersion Condition="'$(Configuration)'=='Debug'">$(FullVersion)$(NuspecVersionSuffix)-debug</NugetVersion>
+    <NugetManufacturer Condition="'$(NugetManufacturer)'==''">Panel::Software</NugetManufacturer>
+    <NugetVersion>$(FullVersion)</NugetVersion>
+    <NuspecVersionSuffix Condition="'$(Configuration)'=='Debug'">$(NuspecVersionSuffix)debug</NuspecVersionSuffix>
 
     <NugetBuildFolder Condition="'$(NugetBuildFolder)'==''">$(SolutionDir)build\Nuget\</NugetBuildFolder>
   </PropertyGroup>
-
-  <!-- Restore nuget packages from version repo -->
-  <Target Name="NugetRestore" AfterTargets="ResolveProjectReferences">
-    <Exec Command='"$(NugetToolPath)" sources Add -Name "$(NugetSourceName)" -Source "$(NugetSource)" -ConfigFile "$(NugetConfig)"' ContinueOnError="true" />
-    
-    <Exec Command='"$(NugetToolPath)" sources Add -Name "Local-Build" -Source "$(NugetBuildFolder)\" -ConfigFile "$(NugetConfig)"' ContinueOnError="true" />
-    <Exec Command='"$(NugetToolPath)" sources Update -Name "Local-Build" -Source "$(NugetBuildFolder)\" -ConfigFile "$(NugetConfig)"'/>
-    
-    <Exec Command='"$(NugetToolPath)" update "$(MSBuildProjectDirectory)\packages.config" -ConfigFile "$(NugetConfig)" $(NugetUpdatePreRelease) -NonInteractive' EnvironmentVariables="SolutionDir=$(SolutionDir)" Condition="Exists('$(MSBuildProjectDirectory)\packages.config')"/>
-    <Exec Command='"$(NugetToolPath)" install "$(MSBuildProjectDirectory)\packages.config" -ConfigFile "$(NugetConfig)" -OutputDirectory "$(SolutionDir)packages"'/>
-  </Target>
-
-  <!-- Pack and upload build outputs to version repo -->
-  <Target Name="NugetUpload" AfterTargets="NugetPack" Condition="'$(OfficialBuild.ToLower())'=='true'">
-    <ItemGroup>
-      <MyNugetPackages Include="$(NugetBuildFolder)$(MSBuildProjectName).*.nupkg" />
-    </ItemGroup>
-    <Exec Command='"$(NugetToolPath)" add "%(MyNugetPackages.FullPath)" -ConfigFile "$(NugetConfig)" -Source "$(NugetSource)"'/>
-    <!--TODO: Git-Commit & push -->
-  </Target>
-
-  <!-- Create .nuspec file if missing -->
-  <Target Name="EnsureNugetSpec" AfterTargets="Build" Condition="!Exists('$(NuSpecPath)')">
-    <PropertyGroup>
-      <NuspecIn Condition="'$(MSBuildProjectExtension)'=='.vcxproj' Or '$(MSBuildProjectExtension)'=='.vcproj'">$(MSBuildThisFileDirectory)\NativeProject.nuspec.xml</NuspecIn>
-      <NuspecIn Condition="'$(MSBuildProjectExtension)'=='.csproj' Or '$(MSBuildProjectExtension)'=='.vbproj' Or '$(CLRSupport)'=='true'">$(MSBuildThisFileDirectory)\NetProject.nuspec.xml</NuspecIn>
-    </PropertyGroup>
-    <XslTransformation XmlInputPaths="$(NuspecIn)" XslInputPath="$(MSBuildThisFileDirectory)Nuspec.xslt" OutputPaths="$(NuSpecPath)" Parameters="&lt;Parameter Name='packagesConfigPath' Value='$(MSBuildProjectDirectory)\packages.config'/&gt;" UseTrustedSettings="true"/>
-  </Target>
-
-  <!-- Pack nuget with parameters -->
-  <Target Name="NugetPack" AfterTargets="EnsureNugetSpec">
-    <GitVersion LocalPath="$(MSBuildProjectDirectory)" ToolPath="$(GitBinFolder)" Short="False" >
-      <Output TaskParameter="CommitHash" PropertyName="GitHash"/>
-    </GitVersion>
-    <ItemGroup>
-      <NugetPackProperty Include="Configuration=$(Configuration)"/>
-      <NugetPackProperty Include="id=$(MSBuildProjectName)"/>
-      <NugetPackProperty Include="title=Hexagon Meterology $(MSBuildProjectName)"/>
-      <NugetPackProperty Include="author=Hexagon Meterology"/>
-      <NugetPackProperty Include="projectUrl=$(MSBuildProjectName)"/>
-      <NugetPackProperty Include="description=Hexagon Meterology $(MSBuildProjectName)"/>
-      <NugetPackProperty Include="OutDir=$(OutDir)"/>
-      <NugetPackProperty Include="IntDir=$(IntDir)"/>
-      <NugetPackProperty Include="RootDir=$(SolutionDir)"/>
-      <NugetPackProperty Include="ProjectName=$(MSBuildProjectName)"/>
-      <NugetPackProperty Include="GitHash=$(GitHash)"/>
-      <NugetPackProperty Include="MyDir=$(MSBuildThisFileDirectory)\"/>
-    </ItemGroup>
-    <Copy DestinationFiles="$(IntDir)$(MSBuildProjectName).props" SourceFiles="$(MSBuildThisFileDirectory)\native-nuget-targets.xml" Condition="'$(MSBuildProjectExtension)'=='.vcxproj'" />
-    <Copy DestinationFiles="$(IntDir)$(MSBuildProjectName).props" SourceFiles="$(MSBuildThisFileDirectory)\net-nuget-targets.xml" Condition="'$(MSBuildProjectExtension)'!='.vcxproj'" />
-    <Exec Command='"$(NugetToolPath)" pack "$(NuSpecPath)" -Version "$(NugetVersion)" -OutputDirectory "$(NugetBuildFolder)\" -Properties "@(NugetPackProperty)"' WorkingDirectory="$(MSBuildProjectDirectory)"/>
-  </Target>
-
 </Project>
