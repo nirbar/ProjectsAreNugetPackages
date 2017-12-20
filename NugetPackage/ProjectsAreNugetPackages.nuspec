@@ -10,10 +10,10 @@
     <description>Pack project outputs to Nuget packages.</description>
     <copyright>Copyright Nir Bar 2017</copyright>
     <projectUrl>https://github.com/nirbar/ProjectsAreNugetPackages</projectUrl>
-    <tags>$GitHash$</tags>
+    <tags>$VersionTags$</tags>
     <developmentDependency>true</developmentDependency>
     <dependencies>
-      <dependency id="TidyBuild" version="1.0.5"/>
+      <dependency id="TidyBuild" version="1.0.7"/>
       <dependency id="NuGet.CommandLine" version="4.4.1"/>
       <dependency id="MSBuildTasks" version="1.5.0.235"/>
     </dependencies>

@@ -9,7 +9,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <copyright>Copyright $author$ 2017</copyright>
-    <tags>native $GitHash$</tags>
+    <tags>native $VersionTags$</tags>
   </metadata>
 
   <files>

@@ -24,7 +24,7 @@ namespace ProjectRefToPackage
                 string prjPath = prjFile.GetMetadata("FullPath");
                 if (string.IsNullOrWhiteSpace(prjPath) || !File.Exists(prjPath))
                 {
-                    Log.LogWarning($"Project not found: '{prjFile.ItemSpec}'");
+                    Log.LogError($"Project not found: '{prjFile.ItemSpec}'");
                     continue;
                 }
 
