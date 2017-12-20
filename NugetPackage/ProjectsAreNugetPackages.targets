@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
-  <Import Project="$(MSBuildThisFileDirectory)$(MSBuildThisFileName).tasks" Condition="Exists($(MSBuildThisFileDirectory)$(MSBuildThisFileName).tasks)"/>
+  <Import Project="$(MSBuildThisFileDirectory)$(MSBuildThisFileName).tasks" Condition="Exists('$(MSBuildThisFileDirectory)$(MSBuildThisFileName).tasks')"/>
 
   <Target Name="ConvertProjectRefToNugetPackage">
-    <ConvertProjectRefToNugetPackage SolutionDir="$(SolutionDir)"  />
+    <ConvertProjectRefToNugetPackage SolutionDir="$(SolutionDir)" Projects="$(MSBuildProjectFile)" />
   </Target>
   
   <!-- Upload built nuget package to version repo -->
