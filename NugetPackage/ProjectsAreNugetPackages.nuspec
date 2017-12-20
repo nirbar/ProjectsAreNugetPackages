@@ -21,6 +21,7 @@
 
   <files>
     <file src="ProjectsAreNugetPackages.props" target="build" />
+    <file src="ProjectsAreNugetPackages.tasks" target="build" />
     <file src="ProjectsAreNugetPackages.targets" target="build" />
     <file src="Nuspec.xslt" target="build" />
     <file src="NativeProject.nuspec.xml" target="build" />
@@ -28,5 +29,8 @@
     <file src="Nuget.config" target="build" />
     <file src="native-nuget-targets.xml" target="build" />
     <file src="net-nuget-targets.xml" target="build" />
+
+    <file src="..\build\bin\Release\ProjectsAreNugetPackages\ProjectsAreNugetPackages.exe" target="tools" />
+    <file src="..\build\bin\Release\ProjectsAreNugetPackages\ProjectsAreNugetPackages.exe.config" target="tools" />
   </files>
 </package>

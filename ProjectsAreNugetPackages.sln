@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectRefToPackage", "ProjectRefToPackage\ProjectRefToPackage.csproj", "{AC5D9394-9F96-43C4-BFC3-5EC38173D422}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectsAreNugetPackages", "ProjectRefToPackage\ProjectsAreNugetPackages.csproj", "{AC5D9394-9F96-43C4-BFC3-5EC38173D422}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NugetPackage", "NugetPackage", "{33761380-C006-45E5-BAA1-3C595856C225}"
 	ProjectSection(SolutionItems) = preProject
@@ -16,6 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NugetPackage", "NugetPackag
 		NugetPackage\ProjectsAreNugetPackages.nuspec = NugetPackage\ProjectsAreNugetPackages.nuspec
 		NugetPackage\ProjectsAreNugetPackages.props = NugetPackage\ProjectsAreNugetPackages.props
 		NugetPackage\ProjectsAreNugetPackages.targets = NugetPackage\ProjectsAreNugetPackages.targets
+		NugetPackage\ProjectsAreNugetPackages.tasks = NugetPackage\ProjectsAreNugetPackages.tasks
 	EndProjectSection
 EndProject
 Global

@@ -16,25 +16,34 @@ namespace ProjectRefToPackage
         PackagesConfig packagesConfig_;
         Dictionary<string, string> globalProps_ = new Dictionary<string, string>();
 
-        public ProjectMigrator(string prjFile)
+        public ProjectMigrator(string prjFile, string solutionDir = null)
         {
             if (!File.Exists(prjFile))
             {
                 throw new FileNotFoundException(prjFile);
             }
 
+            if (string.IsNullOrWhiteSpace(solutionDir))
+            {
+                solutionDir = Path.GetDirectoryName(prjFile);
+            }
+
             projectFile_ = prjFile;
+            globalProps_["SolutionDir"] = solutionDir;
+        }
+
+        private void Initialize()
+        {
             projectFolder_ = Path.GetDirectoryName(projectFile_);
-
             packagesConfig_ = new PackagesConfig(Path.Combine(projectFolder_, "packages.config"));
-
-            globalProps_["SolutionDir"] = Path.GetDirectoryName(projectFolder_); //TODO: Solution
             project_ = new Project(projectFile_, globalProps_, null);
         }
 
         public void MigrateProjectReferences()
         {
             List<ProjectItem> allProjReferences = new List<ProjectItem>();
+
+            Initialize();
 
             foreach (ProjectItem i in project_.AllEvaluatedItems)
             {
