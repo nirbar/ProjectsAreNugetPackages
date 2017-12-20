@@ -24,24 +24,25 @@
   </Target>
 
   <!-- Pack nuget with parameters -->
+  <ItemGroup>
+    <NugetPackProperty Include="Configuration=$(Configuration)"/>
+    <NugetPackProperty Include="id=$(MSBuildProjectName)"/>
+    <NugetPackProperty Include="title=$(NugetManufacturer) $(MSBuildProjectName)"/>
+    <NugetPackProperty Include="author=$(NugetManufacturer)"/>
+    <NugetPackProperty Include="projectUrl=$(MSBuildProjectName)"/>
+    <NugetPackProperty Include="description=$(NugetManufacturer) $(MSBuildProjectName)"/>
+    <NugetPackProperty Include="OutDir=$(OutDir)"/>
+    <NugetPackProperty Include="IntDir=$(IntDir)"/>
+    <NugetPackProperty Include="RootDir=$(SolutionDir)"/>
+    <NugetPackProperty Include="ProjectName=$(MSBuildProjectName)"/>
+    <NugetPackProperty Include="GitHash=$(GitHash)"/>
+    <NugetPackProperty Include="MyDir=$(MSBuildThisFileDirectory)\"/>
+  </ItemGroup>
+
   <Target Name="CreateNugetPackage" AfterTargets="EnsureNugetSpec" Condition="'$(BuildNugetPackage.ToLower())'=='true'">
     <GitVersion LocalPath="$(MSBuildProjectDirectory)" ToolPath="$(GitBinFolder)" Short="False" >
       <Output TaskParameter="CommitHash" PropertyName="GitHash"/>
     </GitVersion>
-    <ItemGroup>
-      <NugetPackProperty Include="Configuration=$(Configuration)"/>
-      <NugetPackProperty Include="id=$(MSBuildProjectName)"/>
-      <NugetPackProperty Include="title=$(NugetManufacturer) $(MSBuildProjectName)"/>
-      <NugetPackProperty Include="author=$(NugetManufacturer)"/>
-      <NugetPackProperty Include="projectUrl=$(MSBuildProjectName)"/>
-      <NugetPackProperty Include="description=$(NugetManufacturer) $(MSBuildProjectName)"/>
-      <NugetPackProperty Include="OutDir=$(OutDir)"/>
-      <NugetPackProperty Include="IntDir=$(IntDir)"/>
-      <NugetPackProperty Include="RootDir=$(SolutionDir)"/>
-      <NugetPackProperty Include="ProjectName=$(MSBuildProjectName)"/>
-      <NugetPackProperty Include="GitHash=$(GitHash)"/>
-      <NugetPackProperty Include="MyDir=$(MSBuildThisFileDirectory)\"/>
-    </ItemGroup>
     <Copy DestinationFiles="$(IntDir)$(MSBuildProjectName).props" SourceFiles="$(MSBuildThisFileDirectory)\native-nuget-targets.xml" Condition="'$(MSBuildProjectExtension)'=='.vcxproj'" />
     <Copy DestinationFiles="$(IntDir)$(MSBuildProjectName).props" SourceFiles="$(MSBuildThisFileDirectory)\net-nuget-targets.xml" Condition="'$(MSBuildProjectExtension)'!='.vcxproj'" />
     <NuGetPack File="$(NuSpecPath)" OutputDirectory="$(NugetBuildFolder)" Version="$(NugetVersion)" Suffix="$(NuspecVersionSuffix)" Build="false" Properties="@(NugetPackProperty)" IncludeReferencedProjects="false" BasePath="$(MSBuildProjectDirectory)" ExcludeEmptyDirectories="false" ToolPath="$(NugetToolPath)"/>
