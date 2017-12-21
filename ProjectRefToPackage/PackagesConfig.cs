@@ -85,7 +85,7 @@ namespace ProjectRefToPackage
                 List<string> depDep = allProjPackages[dep].ResolveRecursiveDependencies(allProjPackages);
                 if (depDep.Contains(Id))
                 {
-                    throw new ArgumentOutOfRangeException($"Cyclic dependency discovered {Id} <--> {dep}");
+                    throw new Exception($"Cyclic dependency discovered {Id} <--> {dep}");
                 }
 
                 impliedDependencies_.AddRange(depDep);
