@@ -6,6 +6,13 @@
     <ConvertProjectRefToNugetPackage SolutionDir="$(SolutionDir)" Projects="$(MSBuildProjectFile)" />
   </Target>
 
+  <Target Name="ResolveDependants">
+    <ResolveDependants DependecyProject="$(MSBuildProjectFile)"
+                       AllProjects="@(AllProjects)">
+      <Output TaskParameter="DependantProjectsBuildOrdered" ItemName="ProjectBuildOrder" />
+    </ResolveDependants>
+  </Target>
+
   <!-- Upload built nuget package to version repo -->
   <Target Name="UploadNugetPackage" AfterTargets="CreateNugetPackage" Condition="'$(UploadNugetPackage.ToLower())'=='true' And '$(BuildNugetPackage.ToLower())'=='true'">
     <ItemGroup>
