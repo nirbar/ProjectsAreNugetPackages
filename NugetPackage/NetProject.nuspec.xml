@@ -13,10 +13,10 @@
   </metadata>
 
   <files>
-    <file target="build" src="$OutDir$$ProjectName$.dll*" />
-    <file target="build" src="$OutDir$$ProjectName$.exe*" />
-    <file target="build" src="$OutDir$$ProjectName$.pdb*" />
-    <file target="build" src="$OutDir$$ProjectName$.metagen*" />
+    <file target="lib" src="$OutDir$$ProjectName$.dll*" />
+    <file target="lib" src="$OutDir$$ProjectName$.exe*" />
+    <file target="lib" src="$OutDir$$ProjectName$.pdb*" />
+    <file target="lib" src="$OutDir$$ProjectName$.metagen*" />
     <file target="build" src="$IntDir$$ProjectName$.props" />
   </files>
 </package>

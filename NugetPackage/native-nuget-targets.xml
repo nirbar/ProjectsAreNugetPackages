@@ -2,14 +2,18 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- Instruct native consumers how to reference this native package -->
   <ItemGroup Condition="'$(MSBuildProjectExtension)' == '.vcxproj' Or '$(MSBuildProjectExtension)' == '.vcproj'">
-    <AdditionalDependencies Include="$(MSBuildThisFileDirectory)*.lib"/>
-    <AdditionalLibraryDirectories Include="$(MSBuildThisFileDirectory)"/>
+    <AdditionalDependencies Include="$(MSBuildThisFileDirectory)\..\lib\*.lib"/>
+    <AdditionalLibraryDirectories Include="$(MSBuildThisFileDirectory)\..\lib\"/>
     <AdditionalIncludeDirectories Include="$(MSBuildThisFileDirectory)..\include"/>
   </ItemGroup>
-  
+  <ItemGroup Condition="'$(MSBuildProjectExtension)' == '.csproj'">
+    <Reference Include="$(MSBuildThisFileDirectory)\..\lib\*.dll"/>
+    <Reference Include="$(MSBuildThisFileDirectory)\..\lib\*.exe"/>
+  </ItemGroup>
+
   <!-- Copy binaries to output folder -->
   <Target AfterTargets="AfterBuild">
-    <Copy SourceFiles="*.dll;*.exe" DestinationFolder="$(OutDir)"/>
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)\..\lib\*.dll;$(MSBuildThisFileDirectory)\..\lib\*.exe" DestinationFolder="$(OutDir)"/>
   </Target>
-  
+
 </Project>
