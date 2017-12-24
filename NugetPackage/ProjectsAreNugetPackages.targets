@@ -63,6 +63,6 @@
   <Target Name="CreateNugetPackage" AfterTargets="EnsureNugetSpec" Condition="'$(BuildNugetPackage.ToLower())'=='true'">
     <Copy DestinationFiles="$(IntDir)$(MSBuildProjectName).props" SourceFiles="$(MSBuildThisFileDirectory)\native-nuget-targets.xml" Condition="'$(MSBuildProjectExtension)'=='.vcxproj'" />
     <Copy DestinationFiles="$(IntDir)$(MSBuildProjectName).props" SourceFiles="$(MSBuildThisFileDirectory)\net-nuget-targets.xml" Condition="'$(MSBuildProjectExtension)'!='.vcxproj'" />
-    <NuGetPack File="$(NuSpecPath)" OutputDirectory="$(NugetBuildFolder)" Version="$(NugetVersion)" Suffix="$(NuspecVersionSuffix)" Build="false" Properties="@(NugetPackProperty);VersionTags=@(VersionTag->'%(Identity)', ' ')" IncludeReferencedProjects="false" BasePath="$(MSBuildProjectDirectory)" ExcludeEmptyDirectories="false" ToolPath="$(NugetToolPath)"/>
+    <NuGetPack File="$(NuSpecPath)" OutputDirectory="$(NugetBuildFolder)" Version="$(NugetVersion)" Suffix="$(NuspecVersionSuffix)" Build="false" Properties="@(NugetPackProperty);VersionTags=@(VersionTag->'%(Identity)', ' ') $(VersionTag)" IncludeReferencedProjects="false" BasePath="$(MSBuildProjectDirectory)" ExcludeEmptyDirectories="false" ToolPath="$(NugetToolPath)"/>
   </Target>
 </Project>
