@@ -28,11 +28,12 @@
   </Target>
 
   <!-- Upload built nuget package to version repo -->
-  <Target Name="UploadNugetPackage" AfterTargets="CreateNugetPackage" Condition="'$(UploadNugetPackage.ToLower())'=='true' And '$(BuildNugetPackage.ToLower())'=='true'">
-    <ItemGroup>
-      <MyNugetPackages Include="$(NugetBuildFolder)$(MSBuildProjectName).*.nupkg" />
-    </ItemGroup>
-    <Exec Command='"$(NugetToolPath)\Nuget.exe" add "%(MyNugetPackages.FullPath)" -ConfigFile "$(NugetConfig)" -Source "$(NugetSource)"'/>
+  <Target Name="UploadNugetPackage">
+    <PropertyGroup>
+      <NugetPackage Condition="'$(NuspecVersionSuffix)'!=''">$(NugetBuildFolder)\$(NugetIdPrefix)$(MSBuildProjectName).$(NugetVersion)-$(NuspecVersionSuffix).nupkg</NugetPackage>
+      <NugetPackage Condition="'$(NuspecVersionSuffix)'==''">$(NugetBuildFolder)\$(NugetIdPrefix)$(MSBuildProjectName).$(NugetVersion).nupkg</NugetPackage>
+    </PropertyGroup>
+    <Exec Command='"$(NugetToolPath)\Nuget.exe" add "$(NugetPackage)" -ConfigFile "$(NugetConfig)" -Source "$(NugetSource)"' Condition="Exists('$(NugetPackage)')"/>
   </Target>
 
   <!-- Create .nuspec file if missing -->
