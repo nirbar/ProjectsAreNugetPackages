@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
-  <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)..\tools\ProjectsAreNugetPackages.exe" TaskName="ConvertProjectRefToNugetPackage"/>
-  <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)..\tools\ProjectsAreNugetPackages.exe" TaskName="ResolveDependants"/>
+  <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)..\tools\ProjectsAreNugetPackages.dll" TaskName="ConvertProjectRefToNugetPackage"/>
+  <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)..\tools\ProjectsAreNugetPackages.dll" TaskName="ResolveDependants"/>
+  <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)\..\..\MSBuildTasks.1.5.0.235\tools\MSBuild.Community.Tasks.dll" TaskName="NuGetUpdate"/>
 </Project>

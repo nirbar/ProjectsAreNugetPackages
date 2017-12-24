@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
-    <SolutionDir Condition="'$(SolutionDir)'==''">$(MSBuildThisFileDirectory)\..\..\..\</SolutionDir>
+    <SolutionDir Condition="'$(SolutionDir)'==''">$(MSBuildThisFileDirectory)..\..\..\</SolutionDir>
+    <SolutionName Condition="'$(SolutionName)'==''">Local</SolutionName>
   </PropertyGroup>
-  
+
   <Import Project="$(SolutionDir)ProjectsAreNugetPackages.custom.props" Condition="Exists('$(SolutionDir)ProjectsAreNugetPackages.custom.props')"/>
   <Import Project="$(MSBuildThisFileDirectory)\..\..\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets"/>
   <Import Project="$(MSBuildThisFileDirectory)\..\..\TidyBuild.1.0.7\build\TidyBuild.props"/>
@@ -20,8 +21,6 @@
 
   <PropertyGroup>
     <NugetToolPath Condition="'$(NugetToolPath)'==''">$(MSBuildThisFileDirectory)\..\..\NuGet.CommandLine.4.4.1\tools\</NugetToolPath>
-    <NugetSource Condition="'$(NugetSource)'==''">$(SolutionDir)NuGet-Repo</NugetSource>
-    <NugetSourceName Condition="'$(NugetSourceName)'==''">Nuget-$(SolutionName)</NugetSourceName>
     <NugetConfig Condition="'$(NugetConfig)'==''">$(MSBuildThisFileDirectory)\NuGet.Config</NugetConfig>
 
     <NuSpecPath Condition="'$(NuSpecPath)'=='' And Exists('$(MSBuildProjectDirectory)\$(MSBuildProjectName).nuspec')">$(MSBuildProjectDirectory)\$(MSBuildProjectName).nuspec</NuSpecPath>
@@ -30,7 +29,15 @@
     <NugetManufacturer Condition="'$(NugetManufacturer)'==''">Panel::Software</NugetManufacturer>
     <NugetVersion>$(FullVersion)</NugetVersion>
     <NuspecVersionSuffix Condition="'$(Configuration)'=='Debug'">$(NuspecVersionSuffix)debug</NuspecVersionSuffix>
+    <NugetIdPrefix Condition="'$(NugetIdPrefix)'==''">Local.</NugetIdPrefix>
 
-    <NugetBuildFolder Condition="'$(NugetBuildFolder)'==''">$(SolutionDir)build\Nuget\</NugetBuildFolder>
+    <NugetBuildFolder Condition="'$(NugetBuildFolder)'==''">$(SolutionDir)build\Nuget</NugetBuildFolder>
+    <NugetSource Condition="'$(NugetSource)'==''">$(NugetBuildFolder)</NugetSource>
+    <NugetSourceName Condition="'$(NugetSourceName)'==''">Nuget-$(SolutionName)</NugetSourceName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(NugetUpdatePreRelease)'==''">
+    <NugetUpdatePreRelease>false</NugetUpdatePreRelease>
+    <NugetUpdatePreRelease Condition="'$(OfficialBuild.ToLower())'!='true' Or '$(Configuration)'!='Release'">true</NugetUpdatePreRelease>
   </PropertyGroup>
 </Project>

@@ -49,7 +49,7 @@ namespace ProjectRefToPackage
                     }
 
                     // Project already handled?
-                    string projId = Path.GetFileNameWithoutExtension(projPath);
+                    string projId = PackageIdPrefix + Path.GetFileNameWithoutExtension(projPath);
                     if (projPackages.ContainsKey(projId))
                     {
                         continue;
@@ -65,6 +65,7 @@ namespace ProjectRefToPackage
 
                     Log.LogMessage(MessageImportance.Low, $"Parsing '{pkgCfg}'.");
                     PackagesConfig pc = new PackagesConfig(pkgCfg);
+                    pc.PackageIdPrefix = PackageIdPrefix;
                     projPackages[projId] = pc;
                     pkg2Items[pc] = p;
 
@@ -75,7 +76,7 @@ namespace ProjectRefToPackage
                     }
                 }
 
-                string targetId = Path.GetFileNameWithoutExtension(targetProject);
+                string targetId = PackageIdPrefix + Path.GetFileNameWithoutExtension(targetProject);
                 List<PackagesConfig> pcOrder = new List<PackagesConfig>();
                 foreach (PackagesConfig pc in projPackages.Values)
                 {
@@ -103,10 +104,11 @@ namespace ProjectRefToPackage
                 orderded.Add(new TaskItem(DependecyProject));
                 foreach (PackagesConfig pc in pcOrder)
                 {
-                    orderded.Add(new TaskItem(pkg2Items[pc]));
+                    TaskItem t = new TaskItem(pkg2Items[pc]);
+                    Log.LogMessage($"Build order: {t.ItemSpec}");
+                    orderded.Add(t);
                 }
 
-                Log.LogMessage($"Build order: {orderded}");
                 DependantProjectsBuildOrdered = orderded.ToArray();
             }
             catch (Exception ex)
@@ -123,7 +125,7 @@ namespace ProjectRefToPackage
             int changeCount = 0;
             int maxChanges = pcOrder.Count * pcOrder.Count;
 
-            Log.LogMessage(MessageImportance.Low, "Resolving Build order...");
+            Log.LogMessage(MessageImportance.Low, $"Resolving Build order. Local projects are prefixed with '{PackageIdPrefix}' on packages.config");
 
             do
             {
@@ -178,6 +180,8 @@ namespace ProjectRefToPackage
 
         [Required]
         public ITaskItem[] AllProjects { get; set; }
+
+        public string PackageIdPrefix { get; set; }
 
         [Output]
         public ITaskItem[] DependantProjectsBuildOrdered { get; private set; }

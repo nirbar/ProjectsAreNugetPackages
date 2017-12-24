@@ -1,16 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <Import Project="$(MSBuildThisFileDirectory)$(MSBuildThisFileName).tasks" Condition="Exists('$(MSBuildThisFileDirectory)$(MSBuildThisFileName).tasks')"/>
+  <Import Project="$(MSBuildThisFileDirectory)\..\..\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets"/>
 
   <Target Name="ConvertProjectRefToNugetPackage">
-    <ConvertProjectRefToNugetPackage SolutionDir="$(SolutionDir)" Projects="$(MSBuildProjectFile)" />
+    <ConvertProjectRefToNugetPackage SolutionDir="$(SolutionDir)"
+                                     Projects="$(MSBuildProjectFile)"
+                                     PackageIdPrefix="$(NugetIdPrefix)"/>
   </Target>
 
   <Target Name="ResolveDependants">
     <ResolveDependants DependecyProject="$(MSBuildProjectFile)"
-                       AllProjects="@(AllProjects)">
+                       AllProjects="@(AllProjects)"
+                       PackageIdPrefix="$(NugetIdPrefix)">
       <Output TaskParameter="DependantProjectsBuildOrdered" ItemName="ProjectBuildOrder" />
     </ResolveDependants>
+  </Target>
+
+  <Target Name="NugetSetLocalSource">
+    <Exec Command='"$(NugetToolPath)\Nuget.exe" sources Add -Name "$(NugetSourceName)" -ConfigFile "$(NugetConfig)" -Source "$(NugetSource)"' ContinueOnError='true'/>
+    <Exec Command='"$(NugetToolPath)\Nuget.exe" sources Update -Name "$(NugetSourceName)" -ConfigFile "$(NugetConfig)" -Source "$(NugetSource)"'/>
+  </Target>
+
+  <Target Name="NugetInstallUpdate" Condition="Exists('$(MSBuildProjectDirectory)\packages.config')">
+    <NuGetInstall Package="$(MSBuildProjectDirectory)\packages.config" ToolPath="$(NugetToolPath)" SolutionDirectory="$(SolutionDir)" PreRelease="$(NugetUpdatePreRelease)" ConfigFile="$(NugetConfig)" ContinueOnError='true' />
+    <NuGetUpdate Package="$(MSBuildProjectDirectory)\packages.config" ConfigFile="$(NugetConfig)" ToolPath="$(NugetToolPath)" PreRelease="$(NugetUpdatePreRelease)"/>
   </Target>
 
   <!-- Upload built nuget package to version repo -->
@@ -33,16 +47,16 @@
   <!-- Pack nuget with parameters -->
   <ItemGroup>
     <NugetPackProperty Include="Configuration=$(Configuration)"/>
-    <NugetPackProperty Include="id=$(MSBuildProjectName)"/>
+    <NugetPackProperty Include="id=$(NugetIdPrefix)$(MSBuildProjectName)"/>
     <NugetPackProperty Include="title=$(NugetManufacturer) $(MSBuildProjectName)"/>
     <NugetPackProperty Include="author=$(NugetManufacturer)"/>
     <NugetPackProperty Include="projectUrl=$(MSBuildProjectName)"/>
     <NugetPackProperty Include="description=$(NugetManufacturer) $(MSBuildProjectName)"/>
-    <NugetPackProperty Include="OutDir=$(OutDir)"/>
-    <NugetPackProperty Include="IntDir=$(IntDir)"/>
-    <NugetPackProperty Include="RootDir=$(SolutionDir)"/>
+    <NugetPackProperty Include="OutDir=$(OutDir.Replace('\\', '\'))"/>
+    <NugetPackProperty Include="IntDir=$(IntDir.Replace('\\', '\'))"/>
+    <NugetPackProperty Include="RootDir=$(SolutionDir.Replace('\\', '\'))"/>
     <NugetPackProperty Include="ProjectName=$(MSBuildProjectName)"/>
-    <NugetPackProperty Include="MyDir=$(MSBuildThisFileDirectory)\"/>
+    <NugetPackProperty Include="MyDir=$(MSBuildThisFileDirectory)"/>
   </ItemGroup>
 
   <Target Name="CreateNugetPackage" AfterTargets="EnsureNugetSpec" Condition="'$(BuildNugetPackage.ToLower())'=='true'">

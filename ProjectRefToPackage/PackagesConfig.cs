@@ -13,13 +13,20 @@ namespace ProjectRefToPackage
         string packagesConfigFile_;
         XmlDocument xmlDoc_;
 
+        public string PackageIdPrefix { get; internal set; }
+
         public PackagesConfig(string file)
         {
             packagesConfigFile_ = file;
-            Id = Path.GetFileName(Path.GetDirectoryName(file));
         }
 
-        public string Id { get; private set; }
+        public string Id
+        {
+            get
+            {
+                return PackageIdPrefix + Path.GetFileName(Path.GetDirectoryName(packagesConfigFile_));
+            }
+        }
 
         private List<string> dependencies_;
         public IEnumerable<string> Dependencies

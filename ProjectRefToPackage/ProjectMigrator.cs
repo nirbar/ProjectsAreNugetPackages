@@ -36,6 +36,7 @@ namespace ProjectRefToPackage
         {
             projectFolder_ = Path.GetDirectoryName(projectFile_);
             packagesConfig_ = new PackagesConfig(Path.Combine(projectFolder_, "packages.config"));
+            packagesConfig_.PackageIdPrefix = PackageIdPrefix;
             project_ = new Project(projectFile_, globalProps_, null);
         }
 
@@ -55,7 +56,7 @@ namespace ProjectRefToPackage
                     if (!string.IsNullOrWhiteSpace(refProj) && File.Exists(refProj))
                     {
                         Console.WriteLine($"Project {projectFile_}- Converting project reference {refProj} to Nuget package");
-                        packagesConfig_.Add(Path.GetFileNameWithoutExtension(refProj));
+                        packagesConfig_.Add(PackageIdPrefix + Path.GetFileNameWithoutExtension(refProj));
                     }
                 }
             }
@@ -64,5 +65,7 @@ namespace ProjectRefToPackage
             packagesConfig_.Save();
             project_.Save();
         }
+
+        public string PackageIdPrefix { get; internal set; }
     }
 }
