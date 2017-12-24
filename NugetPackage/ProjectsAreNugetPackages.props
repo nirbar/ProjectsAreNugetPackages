@@ -11,11 +11,9 @@
 
   <PropertyGroup Condition="'$(OfficialBuild.ToLower())'=='true'">
     <BuildNugetPackage>true</BuildNugetPackage>
-    <UploadNugetPackage>true</UploadNugetPackage>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OfficialBuild.ToLower())'!='true'">
     <BuildNugetPackage>true</BuildNugetPackage>
-    <UploadNugetPackage>false</UploadNugetPackage>
     <NuspecVersionSuffix Condition="'$(NuspecVersionSuffix)'==''">local</NuspecVersionSuffix>
   </PropertyGroup>
 
