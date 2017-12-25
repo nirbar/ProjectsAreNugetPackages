@@ -6,3 +6,4 @@ obj/
 build/
 packages/
 *.user
+.vs/

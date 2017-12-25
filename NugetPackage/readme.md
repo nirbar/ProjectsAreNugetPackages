@@ -47,3 +47,51 @@
 - NugetInstallUpdate: Install and update nuget packages
 - UploadNugetPackage: Nuget add built package to 'NugetSource' repository
 - CreateNugetPackage: Pack a project.
+
+# How to use
+
+## First time init
+
+1. Install the package to all projects
+1. Create a local nuget.config file
+  - Add source with relative path to local nuget build folder.
+  - [Optional] Add source to organization's nuget repository.
+1. Create a file 'ToduBuild.custom.props' with these properties:
+  - NugetConfig
+  - NugetIdPrefix
+  - NuspecVersion
+  - FullVersion (for TidyBuild)
+  - [Optional] NugetSource
+1. Build all projects normally
+1. MSBuild all projects with target 'ConvertProjectRefToNugetPackage'
+1. Build again all projects.
+1. Create build.xml file. Sample code:
+~~~~~~~~~~~
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildThisFileDirectory)\packages\ProjectsAreNugetPackages.1.0.5\build\ProjectsAreNugetPackages.tasks"/>
+
+  <ItemGroup>
+    <AllProjects Include=".\**\*.*proj"/>
+  </ItemGroup>
+  <PropertyGroup>
+    <TargetProject>ConsoleApplication1\ConsoleApplication1.vcxproj</TargetProject>
+  </PropertyGroup>
+
+  <Target Name="Build">
+    <ResolveDependants DependecyProject="$(TargetProject)" AllProjects="@(AllProjects)" PackageIdPrefix="Local.">
+      <Output TaskParameter="DependantProjectsBuildOrdered" ItemName="ProjectBuildOrder" />
+    </ResolveDependants>
+    <Message Text="Project build order: @(ProjectBuildOrder)"/>
+
+    <!-- Must set 'RunEachTargetSeparately' since NugetInstallUpdate target changes the project file so it must reload -->    
+    <MSBuild Projects="%(ProjectBuildOrder.FullPath)" Targets="NugetInstallUpdate;Rebuild" RunEachTargetSeparately="true" Properties="VersionTag=$(VersionTag)"/>
+
+    <!-- After successful build, upload Nuget packages -->
+    <MSBuild Projects="%(ProjectBuildOrder.FullPath)" Targets="UploadNugetPackage"/>
+  </Target>
+</Project>
+~~~~~~~~~~~
+
+## Routine builds
+
+1. MSBuild build.xml target 'Build'. Make sure to set 'TargetProject' property from command line.
