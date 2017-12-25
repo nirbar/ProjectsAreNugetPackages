@@ -84,7 +84,7 @@
     <Message Text="Project build order: @(ProjectBuildOrder)"/>
 
     <!-- Must set 'RunEachTargetSeparately' since NugetInstallUpdate target changes the project file so it must reload -->    
-    <MSBuild Projects="%(ProjectBuildOrder.FullPath)" Targets="NugetInstallUpdate;Rebuild" RunEachTargetSeparately="true" Properties="VersionTag=$(VersionTag)"/>
+    <MSBuild Projects="%(ProjectBuildOrder.FullPath)" Targets="NugetInstallUpdate;Rebuild" RunEachTargetSeparately="true" />
 
     <!-- After successful build, upload Nuget packages -->
     <MSBuild Projects="%(ProjectBuildOrder.FullPath)" Targets="UploadNugetPackage"/>
