@@ -28,7 +28,7 @@
     <file src="NetProject.nuspec.xml" target="build" />
     <file src="native-nuget-targets.xml" target="build" />
     <file src="net-nuget-targets.xml" target="build" />
-    <file src="readme.md" target="" />
+    <file src="..\readme.md" target="" />
 
     <file src="..\build\bin\Release\ProjectsAreNugetPackages\ProjectsAreNugetPackages.dll" target="tools" />
     <file src="..\build\bin\Release\ProjectsAreNugetPackages\ProjectsAreNugetPackages.dll.config" target="tools" />
