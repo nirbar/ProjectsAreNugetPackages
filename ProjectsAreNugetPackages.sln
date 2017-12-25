@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.7
+VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectsAreNugetPackages", "ProjectRefToPackage\ProjectsAreNugetPackages.csproj", "{AC5D9394-9F96-43C4-BFC3-5EC38173D422}"
 EndProject
@@ -11,12 +11,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NugetPackage", "NugetPackag
 		NugetPackage\NativeProject.nuspec.xml = NugetPackage\NativeProject.nuspec.xml
 		NugetPackage\net-nuget-targets.xml = NugetPackage\net-nuget-targets.xml
 		NugetPackage\NetProject.nuspec.xml = NugetPackage\NetProject.nuspec.xml
-		NugetPackage\NuGet.Config = NugetPackage\NuGet.Config
 		NugetPackage\Nuspec.xslt = NugetPackage\Nuspec.xslt
 		NugetPackage\ProjectsAreNugetPackages.nuspec = NugetPackage\ProjectsAreNugetPackages.nuspec
 		NugetPackage\ProjectsAreNugetPackages.props = NugetPackage\ProjectsAreNugetPackages.props
 		NugetPackage\ProjectsAreNugetPackages.targets = NugetPackage\ProjectsAreNugetPackages.targets
 		NugetPackage\ProjectsAreNugetPackages.tasks = NugetPackage\ProjectsAreNugetPackages.tasks
+		NugetPackage\readme.md = NugetPackage\readme.md
 	EndProjectSection
 EndProject
 Global
@@ -32,5 +32,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2CF9DB66-0CE8-4569-9B3D-B97276668F5E}
 	EndGlobalSection
 EndGlobal

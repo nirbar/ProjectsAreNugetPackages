@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>ProjectsAreNugetPackages</id>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <title>ProjectsAreNugetPackages</title>
     <authors>Nir Bar</authors>
     <owners>Nir Bar</owners>
@@ -26,9 +26,9 @@
     <file src="Nuspec.xslt" target="build" />
     <file src="NativeProject.nuspec.xml" target="build" />
     <file src="NetProject.nuspec.xml" target="build" />
-    <file src="Nuget.config" target="build" />
     <file src="native-nuget-targets.xml" target="build" />
     <file src="net-nuget-targets.xml" target="build" />
+    <file src="readme.md" target="" />
 
     <file src="..\build\bin\Release\ProjectsAreNugetPackages\ProjectsAreNugetPackages.dll" target="tools" />
     <file src="..\build\bin\Release\ProjectsAreNugetPackages\ProjectsAreNugetPackages.dll.config" target="tools" />

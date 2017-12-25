@@ -17,11 +17,6 @@
     </ResolveDependants>
   </Target>
 
-  <Target Name="NugetSetLocalSource">
-    <Exec Command='"$(NugetToolPath)\Nuget.exe" sources Add -Name "$(NugetSourceName)" -ConfigFile "$(NugetConfig)" -Source "$(NugetSource)"' ContinueOnError='true'/>
-    <Exec Command='"$(NugetToolPath)\Nuget.exe" sources Update -Name "$(NugetSourceName)" -ConfigFile "$(NugetConfig)" -Source "$(NugetSource)"'/>
-  </Target>
-
   <Target Name="NugetInstallUpdate" Condition="Exists('$(MSBuildProjectDirectory)\packages.config')">
     <NuGetInstall Package="$(MSBuildProjectDirectory)\packages.config" ToolPath="$(NugetToolPath)" SolutionDirectory="$(SolutionDir)" PreRelease="$(NugetUpdatePreRelease)" ConfigFile="$(NugetConfig)" ContinueOnError='true' />
     <NuGetUpdate Package="$(MSBuildProjectDirectory)\packages.config" ConfigFile="$(NugetConfig)" ToolPath="$(NugetToolPath)" PreRelease="$(NugetUpdatePreRelease)"/>
@@ -30,14 +25,14 @@
   <!-- Upload built nuget package to version repo -->
   <Target Name="UploadNugetPackage">
     <PropertyGroup>
-      <NugetPackage Condition="'$(NuspecVersionSuffix)'!=''">$(NugetBuildFolder)\$(NugetIdPrefix)$(MSBuildProjectName).$(NugetVersion)-$(NuspecVersionSuffix).nupkg</NugetPackage>
-      <NugetPackage Condition="'$(NuspecVersionSuffix)'==''">$(NugetBuildFolder)\$(NugetIdPrefix)$(MSBuildProjectName).$(NugetVersion).nupkg</NugetPackage>
+      <NugetPackage Condition="'$(NuspecVersionSuffix)'!=''">$(NugetBuildFolder)\$(NugetIdPrefix)$(MSBuildProjectName).$(NuspecVersion)-$(NuspecVersionSuffix).nupkg</NugetPackage>
+      <NugetPackage Condition="'$(NuspecVersionSuffix)'==''">$(NugetBuildFolder)\$(NugetIdPrefix)$(MSBuildProjectName).$(NuspecVersion).nupkg</NugetPackage>
     </PropertyGroup>
     <Exec Command='"$(NugetToolPath)\Nuget.exe" add "$(NugetPackage)" -ConfigFile "$(NugetConfig)" -Source "$(NugetSource)"' Condition="Exists('$(NugetPackage)')"/>
   </Target>
 
   <!-- Create .nuspec file if missing -->
-  <Target Name="EnsureNugetSpec" AfterTargets="Build" Condition="'$(BuildNugetPackage.ToLower())'=='true' And !Exists('$(NuSpecPath)')">
+  <Target Name="_EnsureNugetSpec" AfterTargets="Build" Condition="'$(BuildNugetPackage.ToLower())'=='true' And !Exists('$(NuSpecPath)')">
     <PropertyGroup>
       <NuspecIn Condition="'$(MSBuildProjectExtension)'=='.vcxproj' Or '$(MSBuildProjectExtension)'=='.vcproj'">$(MSBuildThisFileDirectory)\NativeProject.nuspec.xml</NuspecIn>
       <NuspecIn Condition="'$(MSBuildProjectExtension)'=='.csproj' Or '$(MSBuildProjectExtension)'=='.vbproj' Or '$(CLRSupport)'=='true'">$(MSBuildThisFileDirectory)\NetProject.nuspec.xml</NuspecIn>
@@ -60,9 +55,9 @@
     <NugetPackProperty Include="MyDir=$(MSBuildThisFileDirectory)"/>
   </ItemGroup>
 
-  <Target Name="CreateNugetPackage" AfterTargets="EnsureNugetSpec" Condition="'$(BuildNugetPackage.ToLower())'=='true'">
+  <Target Name="CreateNugetPackage" AfterTargets="_EnsureNugetSpec" Condition="'$(BuildNugetPackage.ToLower())'=='true'">
     <Copy DestinationFiles="$(IntDir)$(MSBuildProjectName).props" SourceFiles="$(MSBuildThisFileDirectory)\native-nuget-targets.xml" Condition="'$(MSBuildProjectExtension)'=='.vcxproj'" />
     <Copy DestinationFiles="$(IntDir)$(MSBuildProjectName).props" SourceFiles="$(MSBuildThisFileDirectory)\net-nuget-targets.xml" Condition="'$(MSBuildProjectExtension)'!='.vcxproj'" />
-    <NuGetPack File="$(NuSpecPath)" OutputDirectory="$(NugetBuildFolder)" Version="$(NugetVersion)" Suffix="$(NuspecVersionSuffix)" Build="false" Properties="@(NugetPackProperty);VersionTags=@(VersionTag->'%(Identity)', ' ') $(VersionTag)" IncludeReferencedProjects="false" BasePath="$(MSBuildProjectDirectory)" ExcludeEmptyDirectories="false" ToolPath="$(NugetToolPath)"/>
+    <NuGetPack File="$(NuSpecPath)" OutputDirectory="$(NugetBuildFolder)" Version="$(NuspecVersion)" Suffix="$(NuspecVersionSuffix)" Build="false" Properties="@(NugetPackProperty);VersionTags=@(VersionTag->'%(Identity)', ' ') $(VersionTag)" IncludeReferencedProjects="false" BasePath="$(MSBuildProjectDirectory)" ExcludeEmptyDirectories="false" ToolPath="$(NugetToolPath)"/>
   </Target>
 </Project>

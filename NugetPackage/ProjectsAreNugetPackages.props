@@ -25,13 +25,12 @@
     <NuSpecPath Condition="'$(NuSpecPath)'==''">$(IntDir)$(MSBuildProjectName).nuspec</NuSpecPath>
 
     <NugetManufacturer Condition="'$(NugetManufacturer)'==''">Panel::Software</NugetManufacturer>
-    <NugetVersion>$(FullVersion)</NugetVersion>
+    <NuspecVersion>$(FullVersion)</NuspecVersion>
     <NuspecVersionSuffix Condition="'$(Configuration)'=='Debug'">$(NuspecVersionSuffix)debug</NuspecVersionSuffix>
     <NugetIdPrefix Condition="'$(NugetIdPrefix)'==''">Local.</NugetIdPrefix>
 
     <NugetBuildFolder Condition="'$(NugetBuildFolder)'==''">$(SolutionDir)build\Nuget</NugetBuildFolder>
     <NugetSource Condition="'$(NugetSource)'==''">$(NugetBuildFolder)</NugetSource>
-    <NugetSourceName Condition="'$(NugetSourceName)'==''">Nuget-$(SolutionName)</NugetSourceName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(NugetUpdatePreRelease)'==''">
