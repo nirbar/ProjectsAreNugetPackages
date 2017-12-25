@@ -131,13 +131,13 @@ namespace ProjectRefToPackage
             {
                 if (cancel_)
                 {
-                    Log.LogMessage(MessageImportance.Low, "Exit on cancel signal");
+                    Log.LogMessage("Exiting on cancel signal");
                     return false;
                 }
 
                 if (changeCount > maxChanges)
                 {
-                    Log.LogError("ParseProjects", "Project dependency dead-lock. There's a circular dependency in projects.");
+                    Log.LogError("Project dependency dead-lock. There's a circular dependency in projects.");
                     return false;
                 }
                 changed = false;
@@ -147,6 +147,12 @@ namespace ProjectRefToPackage
                     PackagesConfig proj1 = pcOrder[i];
                     for (int j = i + 1; j < pcOrder.Count; ++j)
                     {
+                        if (cancel_)
+                        {
+                            Log.LogMessage("Exiting on cancel signal");
+                            return false;
+                        }
+
                         PackagesConfig proj2 = pcOrder[j];
                         if (proj1.ResolveRecursiveDependencies(null).Contains(proj2.Id, StringComparer.OrdinalIgnoreCase))
                         {
