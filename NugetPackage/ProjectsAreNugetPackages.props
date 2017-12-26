@@ -33,6 +33,11 @@
     <NugetSource Condition="'$(NugetSource)'==''">$(NugetBuildFolder)</NugetSource>
   </PropertyGroup>
 
+  <ItemGroup>
+    <NugetUpdateSource Include="$(NugetSource)"/>
+    <NugetUpdateSource Include="$(NugetBuildFolder)"/>
+  </ItemGroup>
+
   <PropertyGroup Condition="'$(NugetUpdatePreRelease)'==''">
     <NugetUpdatePreRelease>false</NugetUpdatePreRelease>
     <NugetUpdatePreRelease Condition="'$(OfficialBuild.ToLower())'!='true' Or '$(Configuration)'!='Release'">true</NugetUpdatePreRelease>

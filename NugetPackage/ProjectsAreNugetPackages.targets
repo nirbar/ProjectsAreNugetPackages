@@ -23,7 +23,7 @@
     <XmlPeek XmlInputPath="$(MSBuildProjectDirectory)\packages.config" Query='//package[starts-with(@id, "$(NugetIdPrefix)")]/@id'>
       <Output TaskParameter="Result" ItemName="AnyLocalPackage"/>
     </XmlPeek>  
-    <NuGetUpdate Package="$(MSBuildProjectDirectory)\packages.config" ConfigFile="$(NugetConfig)" ToolPath="$(NugetToolPath)" PreRelease="$(NugetUpdatePreRelease)" Source="$(NugetSource)" Condition="@(AnyLocalPackage->Count()) > 0"/>
+    <NuGetUpdate Package="$(MSBuildProjectDirectory)\packages.config" ConfigFile="$(NugetConfig)" ToolPath="$(NugetToolPath)" PreRelease="$(NugetUpdatePreRelease)" Source="@(NugetUpdateSource)" Condition="@(AnyLocalPackage->Count()) > 0"/>
   </Target>
 
   <!-- Upload built nuget package to version repo -->

@@ -24,6 +24,7 @@
 ## Custom Items
 
 - NugetPackProperty: key=value pairs to pass as properties to Nuget pack command.
+- NugetUpdateSource: List of nuget URLs to update from. Defaults to NugetBuildFolder and NugetSource.
 
 ## Tasks
 
