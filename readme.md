@@ -5,7 +5,7 @@
 
 ## Custom Properties
 
-- BuildNugetPackage: true/false. Whether or not to build a Nuget project after build
+- BuildNugetPackage: true/false. Whether or not to build a Nuget package after build
 - OfficialBuild: true/false. Helper property to resolve default values for other properties.
 - NugetToolPath: Folder path of Nuget.exe
 - NugetConfig: Path to Nuget.config
