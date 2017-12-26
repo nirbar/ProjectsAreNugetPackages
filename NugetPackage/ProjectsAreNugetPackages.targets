@@ -19,7 +19,11 @@
 
   <Target Name="NugetInstallUpdate" Condition="Exists('$(MSBuildProjectDirectory)\packages.config')">
     <NuGetInstall Package="$(MSBuildProjectDirectory)\packages.config" ToolPath="$(NugetToolPath)" SolutionDirectory="$(SolutionDir)" PreRelease="$(NugetUpdatePreRelease)" ConfigFile="$(NugetConfig)" ContinueOnError='true' />
-    <NuGetUpdate Package="$(MSBuildProjectDirectory)\packages.config" ConfigFile="$(NugetConfig)" ToolPath="$(NugetToolPath)" PreRelease="$(NugetUpdatePreRelease)"/>
+
+    <XmlPeek XmlInputPath="$(MSBuildProjectDirectory)\packages.config" Query='//package[starts-with(@id, "$(NugetIdPrefix)")]/@id'>
+      <Output TaskParameter="Result" ItemName="AnyLocalPackage"/>
+    </XmlPeek>  
+    <NuGetUpdate Package="$(MSBuildProjectDirectory)\packages.config" ConfigFile="$(NugetConfig)" ToolPath="$(NugetToolPath)" PreRelease="$(NugetUpdatePreRelease)" Source="$(NugetSource)" Condition="@(AnyLocalPackage->Count()) > 0"/>
   </Target>
 
   <!-- Upload built nuget package to version repo -->
