@@ -28,7 +28,7 @@
 
 ## Tasks
 
-- ConvertProjectRefToNugetPackage: One-time task to convert project refrences to Nuget dependencies
+- ConvertProjectRefToNugetPackage: One-time task to convert project refrences and library inputs to Nuget dependencies
   - Inputs:
     - Projects [Required]: Item list with all projects to convert.
 	- AllProjects [Required]: string list with all projects
