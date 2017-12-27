@@ -101,7 +101,9 @@ namespace ProjectRefToPackage
                 }
 
                 List<TaskItem> orderded = new List<TaskItem>();
-                orderded.Add(new TaskItem(DependecyProject));
+
+                ITaskItem tgtPrj = AllProjects.FirstOrDefault((i) => (i.GetMetadata("FullPath") == DependecyProject.GetMetadata("FullPath")));
+                orderded.Add(new TaskItem(tgtPrj ?? DependecyProject));
                 foreach (PackagesConfig pc in pcOrder)
                 {
                     TaskItem t = new TaskItem(pkg2Items[pc]);
