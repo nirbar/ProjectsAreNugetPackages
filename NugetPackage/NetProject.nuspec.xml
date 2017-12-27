@@ -17,6 +17,6 @@
     <file target="lib" src="$OutDir$$ProjectName$.exe*" />
     <file target="lib" src="$OutDir$$ProjectName$.pdb*" />
     <file target="lib" src="$OutDir$$ProjectName$.metagen*" />
-    <file target="build" src="$IntDir$$ProjectName$.props" />
+    <file target="build" src="$IntDir$$prefix$$ProjectName$.targets" />
   </files>
 </package>

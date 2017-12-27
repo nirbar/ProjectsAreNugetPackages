@@ -49,11 +49,13 @@
   <ItemGroup>
     <NugetPackProperty Include="Configuration=$(Configuration)"/>
     <NugetPackProperty Include="id=$(NugetIdPrefix)$(MSBuildProjectName)"/>
+    <NugetPackProperty Include="prefix=$(NugetIdPrefix)"/>
     <NugetPackProperty Include="title=$(NugetManufacturer) $(MSBuildProjectName)"/>
     <NugetPackProperty Include="author=$(NugetManufacturer)"/>
     <NugetPackProperty Include="projectUrl=$(MSBuildProjectName)"/>
     <NugetPackProperty Include="description=$(NugetManufacturer) $(MSBuildProjectName)"/>
     <NugetPackProperty Include="OutDir=$(OutDir.Replace('\\', '\'))"/>
+    <NugetPackProperty Include="OutDirLib=$(OutDirLib.Replace('\\', '\'))"/>
     <NugetPackProperty Include="IntDir=$(IntDir.Replace('\\', '\'))"/>
     <NugetPackProperty Include="RootDir=$(SolutionDir.Replace('\\', '\'))"/>
     <NugetPackProperty Include="ProjectName=$(MSBuildProjectName)"/>
@@ -61,8 +63,8 @@
   </ItemGroup>
 
   <Target Name="CreateNugetPackage" AfterTargets="_EnsureNugetSpec" Condition="'$(BuildNugetPackage.ToLower())'=='true'">
-    <Copy DestinationFiles="$(IntDir)$(MSBuildProjectName).props" SourceFiles="$(MSBuildThisFileDirectory)\native-nuget-targets.xml" Condition="'$(MSBuildProjectExtension)'=='.vcxproj'" />
-    <Copy DestinationFiles="$(IntDir)$(MSBuildProjectName).props" SourceFiles="$(MSBuildThisFileDirectory)\net-nuget-targets.xml" Condition="'$(MSBuildProjectExtension)'!='.vcxproj'" />
+    <Copy DestinationFiles="$(IntDir)$(NugetIdPrefix)$(MSBuildProjectName).targets" SourceFiles="$(MSBuildThisFileDirectory)\native-nuget-targets.xml" Condition="'$(MSBuildProjectExtension)'=='.vcxproj'" />
+    <Copy DestinationFiles="$(IntDir)$(NugetIdPrefix)$(MSBuildProjectName).targets" SourceFiles="$(MSBuildThisFileDirectory)\net-nuget-targets.xml" Condition="'$(MSBuildProjectExtension)'!='.vcxproj'" />
     <NuGetPack File="$(NuSpecPath)" OutputDirectory="$(NugetBuildFolder)" Version="$(NuspecVersion)" Suffix="$(NuspecVersionSuffix)" Build="false" Properties="@(NugetPackProperty);VersionTags=@(VersionTag->'%(Identity)', ' ') $(VersionTag)" IncludeReferencedProjects="false" BasePath="$(MSBuildProjectDirectory)" ExcludeEmptyDirectories="false" ToolPath="$(NugetToolPath)"/>
   </Target>
 </Project>

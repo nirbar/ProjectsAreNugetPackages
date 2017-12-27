@@ -16,7 +16,8 @@
     <file src="$OutDir$$ProjectName$.exe*" target="lib" />
     <file src="$OutDir$$ProjectName$.dll*" target="lib" />
     <file src="$OutDir$$ProjectName$.lib*" target="lib" />
+    <file src="$OutDirLib$$ProjectName$.lib*" target="lib" />
     <file src="$OutDir$$ProjectName$.pdb*" target="lib" />
-    <file src="$IntDir$$ProjectName$.props" target="build" />
+    <file src="$IntDir$$prefix$$ProjectName$.targets" target="build" />
   </files>                              
 </package>                              

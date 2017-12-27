@@ -2,18 +2,22 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- Instruct native consumers how to reference this native package -->
   <ItemGroup Condition="'$(MSBuildProjectExtension)' == '.vcxproj' Or '$(MSBuildProjectExtension)' == '.vcproj'">
-    <AdditionalDependencies Include="$(MSBuildThisFileDirectory)\..\lib\*.lib"/>
-    <AdditionalLibraryDirectories Include="$(MSBuildThisFileDirectory)\..\lib\"/>
+    <AdditionalDependencies Include="$(MSBuildThisFileDirectory)..\lib\*.lib"/>
+    <AdditionalLibraryDirectories Include="$(MSBuildThisFileDirectory)..\lib\"/>
     <AdditionalIncludeDirectories Include="$(MSBuildThisFileDirectory)..\include"/>
   </ItemGroup>
   <ItemGroup Condition="'$(MSBuildProjectExtension)' == '.csproj'">
-    <Reference Include="$(MSBuildThisFileDirectory)\..\lib\*.dll"/>
-    <Reference Include="$(MSBuildThisFileDirectory)\..\lib\*.exe"/>
+    <Reference Include="$(MSBuildThisFileDirectory)..\lib\*.dll"/>
+    <Reference Include="$(MSBuildThisFileDirectory)..\lib\*.exe"/>
   </ItemGroup>
 
   <!-- Copy binaries to output folder -->
-  <Target AfterTargets="AfterBuild">
-    <Copy SourceFiles="$(MSBuildThisFileDirectory)\..\lib\*.dll;$(MSBuildThisFileDirectory)\..\lib\*.exe" DestinationFolder="$(OutDir)"/>
+  <Target Name="AfterAfterBuild" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <CopyMe Include="$(MSBuildThisFileDirectory)..\lib\*.dll"/>
+      <CopyMe Include="$(MSBuildThisFileDirectory)..\lib\*.exe"/>
+    </ItemGroup>
+    <Copy SourceFiles="@(CopyMe)" DestinationFolder="$(OutDir)"/>
   </Target>
 
 </Project>
