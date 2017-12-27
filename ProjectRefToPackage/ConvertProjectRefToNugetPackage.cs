@@ -29,7 +29,7 @@ namespace ProjectRefToPackage
                 }
 
                 Log.LogMessage($"Converting project references to nuget dependency packages for '{prjFile.ItemSpec}'");
-                ProjectMigrator mgrt = new ProjectMigrator(prjPath);
+                ProjectMigrator mgrt = new ProjectMigrator(Log, prjPath, AllProjects);
                 mgrt.PackageIdPrefix = PackageIdPrefix;
                 mgrt.MigrateProjectReferences();
             }
@@ -42,6 +42,9 @@ namespace ProjectRefToPackage
 
         [Required] 
         public ITaskItem SolutionDir { get; set; }
+
+        [Required]
+        public string[] AllProjects { get; set; }
 
         public string PackageIdPrefix { get; internal set; }
     }

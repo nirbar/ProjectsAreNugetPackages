@@ -6,6 +6,7 @@
   <Target Name="ConvertProjectRefToNugetPackage">
     <ConvertProjectRefToNugetPackage SolutionDir="$(SolutionDir)"
                                      Projects="$(MSBuildProjectFile)"
+                                     AllProjects="$(AllProjects)"
                                      PackageIdPrefix="$(NugetIdPrefix)"/>
   </Target>
 
