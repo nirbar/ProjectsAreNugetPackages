@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>ProjectsAreNugetPackages</id>
-    <version>1.0.8</version>
+    <version>1.0.9</version>
     <title>ProjectsAreNugetPackages</title>
     <authors>Nir Bar</authors>
     <owners>Nir Bar</owners>

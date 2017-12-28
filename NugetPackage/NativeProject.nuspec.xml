@@ -18,6 +18,6 @@
     <file src="$OutDir$$ProjectName$.lib*" target="lib" />
     <file src="$OutDirLib$$ProjectName$.lib*" target="lib" />
     <file src="$OutDir$$ProjectName$.pdb*" target="lib" />
-    <file src="$IntDir$$prefix$$ProjectName$.targets" target="build" />
+    <file src="$IntDir$$id$.targets" target="build" />
   </files>                              
 </package>                              
