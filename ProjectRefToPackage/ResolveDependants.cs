@@ -152,13 +152,6 @@ namespace ProjectRefToPackage
                     where ((vi != bi) && bi.pkgCfg_.Dependencies.Contains(((BuildItem)vi).pkgCfg_.Id))
                     select vi
                     );
-
-                Console.Write($"{bi.taskItem_.ItemSpec} depends on ");
-                foreach (Vertex d in bi.Dependencies)
-                {
-                    Console.Write(((BuildItem)d).taskItem_.ItemSpec + " ");
-                }
-                Console.WriteLine();
             }
 
             // Ordered list. Target project is first in line

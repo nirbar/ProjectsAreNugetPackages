@@ -54,7 +54,6 @@ namespace CoffmanGrahamScheduler
                 {
                     if (!topoligicalOrder.Contains(vi) && !vi.DirectDependencies.Any((v) => !topoligicalOrder.Contains(v)))
                     {
-                        Console.WriteLine($"Topological order: Adding {vi.ToString()}");
                         topoligicalOrder.Add(vi);
                     }
                 }

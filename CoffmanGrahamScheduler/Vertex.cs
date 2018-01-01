@@ -60,7 +60,6 @@ namespace CoffmanGrahamScheduler
                     if (iDirect)
                     {
                         DirectDependencies.Add(vi);
-                        Console.WriteLine($"{ToString()} has direct dependency on {vi.ToString()}");
                     }
                 }
             }
