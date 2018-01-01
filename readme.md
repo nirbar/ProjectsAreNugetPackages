@@ -38,8 +38,10 @@
     - DependecyProject [Required]: The target project to build.
 	- AllProjects [Required]: Item list with all projects.
 	- PackageIdPrefix: Prefix to project names as Nuget dependencies. See property NugetIdPrefix.
+	- ProcessorCount: Maximal projects to build in parallel. Defaults to Environment.ParallelBuildLevel value. See output parameter DependantProjectsBuildOrdered.
   - Outputs:
-    - DependantProjectsBuildOrdered: Item list- projects to build in order. Projects that do not depend on DependecyProject are not on the list
+    - DependantProjectsBuildOrdered: Item list- projects to build in order. Projects that do not depend on DependecyProject are not on the list.
+	  Contains metadata ParallelBuildLevel with numeric level order of projects that can be built in parallel.
 
 ## Targets
 

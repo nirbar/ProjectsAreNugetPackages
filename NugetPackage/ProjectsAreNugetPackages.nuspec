@@ -32,5 +32,6 @@
 
     <file src="..\build\bin\Release\ProjectsAreNugetPackages\ProjectsAreNugetPackages.dll" target="tools" />
     <file src="..\build\bin\Release\ProjectsAreNugetPackages\ProjectsAreNugetPackages.dll.config" target="tools" />
+    <file src="..\build\bin\Release\ProjectsAreNugetPackages\CoffmanGrahamScheduler.dll" target="tools" />
   </files>
 </package>

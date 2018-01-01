@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using System.IO;
+using CoffmanGrahamScheduler;
 
 namespace ProjectRefToPackage
 {
@@ -14,6 +15,11 @@ namespace ProjectRefToPackage
     public class ResolveDependants : Task, ICancelableTask
     {
         private bool cancel_ = false;
+
+        public ResolveDependants()
+        {
+            ProcessorCount = Environment.ProcessorCount;
+        }
 
         public override bool Execute()
         {
@@ -77,14 +83,14 @@ namespace ProjectRefToPackage
                 }
 
                 string targetId = PackageIdPrefix + Path.GetFileNameWithoutExtension(targetProject);
-                List<PackagesConfig> pcOrder = new List<PackagesConfig>();
+                HashSet<PackagesConfig> buildSet = new HashSet<PackagesConfig>();
                 foreach (PackagesConfig pc in projPackages.Values)
                 {
                     List<string> pcDep = pc.ResolveRecursiveDependencies(projPackages);
-                    if (pcDep.Contains(targetId) && projPackages.ContainsKey(pc.Id) && !pcOrder.Contains(pc))
+                    if (pcDep.Contains(targetId) && projPackages.ContainsKey(pc.Id) && !buildSet.Contains(pc))
                     {
                         Log.LogMessage(MessageImportance.Low, $"Build requires '{pc.Id}'.");
-                        pcOrder.Add(pc);
+                        buildSet.Add(pc);
                     }
 
                     if (cancel_)
@@ -95,87 +101,90 @@ namespace ProjectRefToPackage
                 }
 
                 // Resolve projects build order.
-                if (!SetBuildOrder(pcOrder))
+
+                List<TaskItem> orderded = SetBuildOrder(buildSet, pkg2Items);
+                if (orderded == null)
                 {
                     return false;
                 }
-
-                List<TaskItem> orderded = new List<TaskItem>();
-
-                ITaskItem tgtPrj = AllProjects.FirstOrDefault((i) => (i.GetMetadata("FullPath") == DependecyProject.GetMetadata("FullPath")));
-                orderded.Add(new TaskItem(tgtPrj ?? DependecyProject));
-                foreach (PackagesConfig pc in pcOrder)
-                {
-                    TaskItem t = new TaskItem(pkg2Items[pc]);
-                    Log.LogMessage($"Build order: {t.ItemSpec}");
-                    orderded.Add(t);
-                }
-
                 DependantProjectsBuildOrdered = orderded.ToArray();
+                return true;
             }
             catch (Exception ex)
             {
                 Log.LogErrorFromException(ex);
                 return false;
             }
-            return !cancel_;
         }
 
-        private bool SetBuildOrder(List<PackagesConfig> pcOrder)
+        class BuildItem : Vertex
         {
-            bool changed;
-            int changeCount = 0;
-            int maxChanges = pcOrder.Count * pcOrder.Count;
+            internal TaskItem taskItem_;
+            internal PackagesConfig pkgCfg_;
 
-            Log.LogMessage(MessageImportance.Low, $"Resolving Build order. Local projects are prefixed with '{PackageIdPrefix}' on packages.config");
+            public override string ToString() => taskItem_.ItemSpec;
+        };
 
-            do
+        private List<TaskItem> SetBuildOrder(HashSet<PackagesConfig> buildSet, Dictionary<PackagesConfig, ITaskItem> pkg2Items)
+        {
+            HashSet<Vertex> vertices = new HashSet<Vertex>();
+
+            ITaskItem tgtPrj = AllProjects.FirstOrDefault((i) => (i.GetMetadata("FullPath") == DependecyProject.GetMetadata("FullPath")));
+            BuildItem tgtItem = new BuildItem();
+            tgtItem.taskItem_ = new TaskItem(tgtPrj);
+
+            // Create vertex list
+            foreach (PackagesConfig pc in buildSet)
             {
-                if (cancel_)
+                BuildItem bi = new BuildItem();
+                bi.taskItem_ = new TaskItem(pkg2Items[pc]);
+                bi.pkgCfg_ = pc;
+                vertices.Add(bi);
+            }
+
+            // Set dependencies on projects that are to be built
+            foreach (Vertex v in vertices)
+            {
+                BuildItem bi = v as BuildItem;
+                bi.Dependencies.Add(tgtItem);
+                bi.Dependencies.AddRange(
+                    from vi in vertices
+                    where ((vi != bi) && bi.pkgCfg_.Dependencies.Contains(((BuildItem)vi).pkgCfg_.Id))
+                    select vi
+                    );
+
+                Console.Write($"{bi.taskItem_.ItemSpec} depends on ");
+                foreach (Vertex d in bi.Dependencies)
                 {
-                    Log.LogMessage("Exiting on cancel signal");
-                    return false;
+                    Console.Write(((BuildItem)d).taskItem_.ItemSpec + " ");
                 }
+                Console.WriteLine();
+            }
 
-                if (changeCount > maxChanges)
+            // Ordered list. Target project is first in line
+            List<TaskItem> orderded = new List<TaskItem>();
+
+            vertices.Add(tgtItem);
+
+            if (ProcessorCount <= 0)
+            {
+                ProcessorCount = Environment.ProcessorCount;
+            }
+            Graph g = Graph.CoffmanGraham(vertices, ProcessorCount);
+
+            int l = 0;
+            foreach (HashSet<Vertex> level in g.Levels)
+            {
+                foreach (Vertex v in level)
                 {
-                    Log.LogError("Project dependency dead-lock. There's a circular dependency in projects.");
-                    return false;
+                    BuildItem bi = v as BuildItem;
+                    bi.taskItem_.SetMetadata("ParallelBuildLevel", l.ToString());
+                    orderded.Add(bi.taskItem_);
                 }
-                changed = false;
+                ++l;
+            }
 
-                for (int i = 0; i < pcOrder.Count; ++i)
-                {
-                    PackagesConfig proj1 = pcOrder[i];
-                    for (int j = i + 1; j < pcOrder.Count; ++j)
-                    {
-                        if (cancel_)
-                        {
-                            Log.LogMessage("Exiting on cancel signal");
-                            return false;
-                        }
-
-                        PackagesConfig proj2 = pcOrder[j];
-                        if (proj1.ResolveRecursiveDependencies(null).Contains(proj2.Id, StringComparer.OrdinalIgnoreCase))
-                        {
-                            Log.LogMessage(MessageImportance.Low, $"'{proj1.Id}' depends on '{proj2.Id}'");
-
-                            changed = true;
-                            pcOrder.RemoveAt(j);
-                            pcOrder.Insert(i, proj2);
-                            break;
-                        }
-                    }
-
-                    if (changed)
-                    {
-                        ++changeCount;
-                        break;
-                    }
-                }
-            } while (changed);
-
-            return true;
+            return orderded;
         }
 
         void ICancelableTask.Cancel()
@@ -190,6 +199,8 @@ namespace ProjectRefToPackage
         public ITaskItem[] AllProjects { get; set; }
 
         public string PackageIdPrefix { get; set; }
+
+        public int ProcessorCount { get; set; }
 
         [Output]
         public ITaskItem[] DependantProjectsBuildOrdered { get; private set; }
