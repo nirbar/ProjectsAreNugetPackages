@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <!-- Copy binaries to output folder -->
-  <Target Name="AfterAfterBuild" AfterTargets="AfterBuild">
+  <Target Name="!id!_AfterBuild" AfterTargets="AfterBuild">
     <ItemGroup>
       <CopyMe Include="$(MSBuildThisFileDirectory)..\lib\*.dll"/>
       <CopyMe Include="$(MSBuildThisFileDirectory)..\lib\*.exe"/>
