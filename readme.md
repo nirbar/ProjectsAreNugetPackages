@@ -98,11 +98,6 @@
     <Exec Command='"$(MSBuildBinPath)\MSBuild.exe" "%(ProjectBuildOrder.FullPath)" "/Property:%(ProjectBuildOrder.Properties)" /Target:NugetInstallUpdate' />
     <MSBuild Projects="@(ProjectBuildOrder)" Targets="Rebuild" UnloadProjectsOnCompletion="true" BuildInParallel="true"/>
   </Target>
-
-  <!-- After successful build: upload Nuget packages; Git commit, tag & push -->
-  <Target Name="Upload" AfterTargets="Build">
-    <MSBuild Projects="@(ProjectBuildOrder)" Targets="UploadNugetPackage;GitCommitTagPush" BuildInParallel="true" />
-  </Target>
 </Project>
 ~~~~~~~~~~~
 
