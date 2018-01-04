@@ -71,26 +71,37 @@
 1. Create build.xml file. Sample code:
 ~~~~~~~~~~~
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildThisFileDirectory)\packages\ProjectsAreNugetPackages.1.0.5\build\ProjectsAreNugetPackages.tasks"/>
+  <Import Project="$(MSBuildThisFileDirectory)\packages\ProjectsAreNugetPackages.1.0.9\build\ProjectsAreNugetPackages.tasks"/>
 
   <ItemGroup>
     <AllProjects Include=".\**\*.*proj"/>
   </ItemGroup>
+  <ItemDefinitionGroup>
+    <AllProjects>
+      <Properties>Configuration=Release;Platform=Win32</Properties>
+    </AllProjects>
+  </ItemDefinitionGroup>
+
   <PropertyGroup>
-    <TargetProject>ConsoleApplication1\ConsoleApplication1.vcxproj</TargetProject>
+    <TargetProject>NativeDll1\NativeDll1.vcxproj</TargetProject>
   </PropertyGroup>
 
-  <Target Name="Build">
+  <Target Name="ResolveBuildOrder">
     <ResolveDependants DependecyProject="$(TargetProject)" AllProjects="@(AllProjects)" PackageIdPrefix="Local.">
       <Output TaskParameter="DependantProjectsBuildOrdered" ItemName="ProjectBuildOrder" />
     </ResolveDependants>
-    <Message Text="Project build order: @(ProjectBuildOrder)"/>
+    <Message Text="Project parallel build in step %(ProjectBuildOrder.ParallelBuildLevel): @(ProjectBuildOrder)"/>
+  </Target>
 
-    <!-- Must set 'RunEachTargetSeparately' since NugetInstallUpdate target changes the project file so it must reload -->    
-    <MSBuild Projects="%(ProjectBuildOrder.FullPath)" Targets="NugetInstallUpdate;Rebuild" RunEachTargetSeparately="true" />
+  <!-- Build in batches defined by ParallelBuildLevel metadata created by ResolveDependants task -->
+  <Target Name="Build" DependsOnTargets="ResolveBuildOrder" Inputs="@(ProjectBuildOrder)" Outputs="%(ParallelBuildLevel)\NeverExists">
+    <Exec Command='"$(MSBuildBinPath)\MSBuild.exe" "%(ProjectBuildOrder.FullPath)" "/Property:%(ProjectBuildOrder.Properties)" /Target:NugetInstallUpdate' />
+    <MSBuild Projects="@(ProjectBuildOrder)" Targets="Rebuild" UnloadProjectsOnCompletion="true" BuildInParallel="true"/>
+  </Target>
 
-    <!-- After successful build, upload Nuget packages -->
-    <MSBuild Projects="%(ProjectBuildOrder.FullPath)" Targets="UploadNugetPackage"/>
+  <!-- After successful build: upload Nuget packages; Git commit, tag & push -->
+  <Target Name="Upload" AfterTargets="Build">
+    <MSBuild Projects="@(ProjectBuildOrder)" Targets="UploadNugetPackage;GitCommitTagPush" BuildInParallel="true" />
   </Target>
 </Project>
 ~~~~~~~~~~~
