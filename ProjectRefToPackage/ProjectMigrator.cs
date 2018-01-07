@@ -93,6 +93,23 @@ namespace ProjectRefToPackage
                 }
             }
 
+            ProjectItemDefinition pid = project_.ItemDefinitions["Link"];
+            if (pid != null)
+            {
+                string libDependencies = pid.GetMetadataValue("AdditionalDependencies");
+                string[] libs = libDependencies.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string l in libs)
+                {
+                    string li = Path.GetFileNameWithoutExtension(l);
+                    string refProj = allProjects_.Find((p) => ((!string.IsNullOrWhiteSpace(p)) && File.Exists(p) && Path.GetFileNameWithoutExtension(p).Equals(li, StringComparison.OrdinalIgnoreCase)));
+                    if (!string.IsNullOrWhiteSpace(refProj))
+                    {
+                        logger_.LogMessage($"Project {projectFile_}- Converting library reference '{refProj}' to Nuget package");
+                        packagesConfig_.Add(PackageIdPrefix + li);
+                    }
+                }
+            }
+
             project_.RemoveItems(allProjReferences);
             packagesConfig_.Save();
             project_.Save();
