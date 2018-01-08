@@ -7,7 +7,8 @@
     <ConvertProjectRefToNugetPackage SolutionDir="$(SolutionDir)"
                                      Projects="$(MSBuildProjectFile)"
                                      AllProjects="$(AllProjects)"
-                                     PackageIdPrefix="$(NugetIdPrefix)"/>
+                                     PackageIdPrefix="$(NugetIdPrefix)"
+                                     PackageVersion="$(NuspecVersion)"/>
   </Target>
 
   <Target Name="ResolveDependants">

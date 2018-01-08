@@ -33,20 +33,8 @@ namespace ProjectRefToPackage
                     continue;
                 }
 
-                Dictionary<string, string> globalProps = new Dictionary<string, string>();
-                foreach (ITaskItem i in Properties)
-                {
-                    int ii = i.ItemSpec.IndexOf('=');
-                    if (ii > 0)
-                    {
-                        string k = i.ItemSpec.Substring(0, ii);
-                        string v = i.ItemSpec.Substring(1 + ii);
-                        globalProps[k] = v;
-                    }
-                }
-
                 Log.LogMessage($"Converting project references to nuget dependency packages for '{prjFile.ItemSpec}'");
-                ProjectMigrator mgrt = new ProjectMigrator(Log, prjPath, AllProjects, globalProps, PackageVersion);
+                ProjectMigrator mgrt = new ProjectMigrator(Log, prjFile, AllProjects, PackageVersion);
                 mgrt.PackageIdPrefix = PackageIdPrefix;
                 mgrt.MigrateProjectReferences();
             }
@@ -62,8 +50,6 @@ namespace ProjectRefToPackage
 
         [Required]
         public ITaskItem[] AllProjects { get; set; }
-
-        public ITaskItem[] Properties { get; set; }
 
         public string PackageIdPrefix { get; internal set; }
 

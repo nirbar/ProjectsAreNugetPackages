@@ -19,23 +19,36 @@ namespace ProjectRefToPackage
         TaskLoggingHelper logger_;
         string packageVersion_;
 
-        public ProjectMigrator(TaskLoggingHelper logger, string prjFile, ITaskItem[] allProjects, Dictionary<string, string> globalProps, string packageVersion)
+        public ProjectMigrator(TaskLoggingHelper logger, ITaskItem proj, ITaskItem[] allProjects, string packageVersion)
         {
             logger_ = logger;
             packageVersion_ = packageVersion;
-            if (!File.Exists(prjFile))
+            string prjFile = proj.GetMetadata("FullPath");
+            if (string.IsNullOrWhiteSpace(prjFile) || !File.Exists(prjFile))
             {
-                throw new FileNotFoundException(prjFile);
+                throw new FileNotFoundException(proj.ItemSpec);
             }
             allProjects_ = new HashSet<ITaskItem>(allProjects);
 
-
             projectFile_ = prjFile;
-            globalProps_ = new Dictionary<string, string>(globalProps);
+            globalProps_ = new Dictionary<string, string>();
             if (!globalProps_.ContainsKey("SolutionDir"))
             {
                 string solutionDir = Path.GetDirectoryName(prjFile);
                 globalProps_["SolutionDir"] = solutionDir;
+            }
+
+            string moreProps = $"{proj.GetMetadata("Properties")};{proj.GetMetadata("AdditionalProperties")}";
+            string[] morePropsList = moreProps.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string kv in morePropsList)
+            {
+                int i = kv.IndexOf('=');
+                if (i > 0)
+                {
+                    string k = kv.Substring(0, i);
+                    string v = kv.Substring(1 + i);
+                    globalProps_[k] = v;
+                }
             }
         }
 
