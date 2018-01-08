@@ -120,7 +120,7 @@ namespace ProjectRefToPackage
             xmlDoc_.AppendChild(root);
         }
 
-        public void Add(string packageId)
+        public void Add(string packageId, string packageVersion)
         {
             EnsureExists();
 
@@ -134,7 +134,7 @@ namespace ProjectRefToPackage
 
             XmlElement xElem = xmlDoc_.CreateElement("package");
             xElem.SetAttribute("id", packageId);
-            xElem.SetAttribute("version", "0.0.0.0");
+            xElem.SetAttribute("version", packageVersion);
             xmlDoc_.DocumentElement.AppendChild(xElem);
             dependencies_ = null; // Invalidate dependency list.
             impliedDependencies_ = null;

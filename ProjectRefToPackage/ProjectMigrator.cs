@@ -4,6 +4,7 @@ using Microsoft.Build.Evaluation;
 using System.IO;
 using Microsoft.Build.Utilities;
 using System.Linq;
+using Microsoft.Build.Framework;
 
 namespace ProjectRefToPackage
 {
@@ -14,22 +15,28 @@ namespace ProjectRefToPackage
         string projectFolder_;
         List<string> allProjects_;
         PackagesConfig packagesConfig_;
-        Dictionary<string, string> globalProps_ = new Dictionary<string, string>();
+        Dictionary<string, string> globalProps_;
         TaskLoggingHelper logger_;
+        string packageVersion_;
 
-        public ProjectMigrator(TaskLoggingHelper logger, string prjFile, string[] allProjects)
+        public ProjectMigrator(TaskLoggingHelper logger, string prjFile, string[] allProjects, Dictionary<string, string> globalProps, string packageVersion)
         {
             logger_ = logger;
+            packageVersion_ = packageVersion;
             if (!File.Exists(prjFile))
             {
                 throw new FileNotFoundException(prjFile);
             }
             allProjects_ = new List<string>(allProjects);
 
-            string solutionDir = Path.GetDirectoryName(prjFile);
 
             projectFile_ = prjFile;
-            globalProps_["SolutionDir"] = solutionDir;
+            globalProps_ = new Dictionary<string, string>(globalProps);
+            if (!globalProps_.ContainsKey("SolutionDir"))
+            {
+                string solutionDir = Path.GetDirectoryName(prjFile);
+                globalProps_["SolutionDir"] = solutionDir;
+            }
         }
 
         private void Initialize()
@@ -54,7 +61,7 @@ namespace ProjectRefToPackage
                 if (!string.IsNullOrWhiteSpace(refProj) && File.Exists(refProj))
                 {
                     logger_.LogMessage($"Project {projectFile_}- Converting project reference '{refProj}' to Nuget package");
-                    packagesConfig_.Add(PackageIdPrefix + Path.GetFileNameWithoutExtension(refProj));
+                    packagesConfig_.Add(PackageIdPrefix + Path.GetFileNameWithoutExtension(refProj), packageVersion_);
                 }
             }
 
@@ -65,11 +72,12 @@ namespace ProjectRefToPackage
                 foreach (string l in libs)
                 {
                     string li = Path.GetFileNameWithoutExtension(l);
+                    logger_.LogMessage(MessageImportance.Low, $"Inspecting '{li}'");
                     string refProj = allProjects_.Find((p) => ((!string.IsNullOrWhiteSpace(p)) && File.Exists(p) && Path.GetFileNameWithoutExtension(p).Equals(li, StringComparison.OrdinalIgnoreCase)));
                     if (!string.IsNullOrWhiteSpace(refProj))
                     {
                         logger_.LogMessage($"Project {projectFile_}- Converting library reference '{refProj}' to Nuget package");
-                        packagesConfig_.Add(PackageIdPrefix + li);
+                        packagesConfig_.Add(PackageIdPrefix + li, packageVersion_);
                     }
                 }
             }
@@ -83,11 +91,12 @@ namespace ProjectRefToPackage
                     foreach (string l in libs)
                     {
                         string li = Path.GetFileNameWithoutExtension(l);
+                        logger_.LogMessage(MessageImportance.Low, $"Inspecting '{li}'");
                         string refProj = allProjects_.Find((p) => ((!string.IsNullOrWhiteSpace(p)) && File.Exists(p) && Path.GetFileNameWithoutExtension(p).Equals(li, StringComparison.OrdinalIgnoreCase)));
                         if (!string.IsNullOrWhiteSpace(refProj))
                         {
                             logger_.LogMessage($"Project {projectFile_}- Converting library reference '{refProj}' to Nuget package");
-                            packagesConfig_.Add(PackageIdPrefix + li);
+                            packagesConfig_.Add(PackageIdPrefix + li, packageVersion_);
                         }
                     }
                 }
@@ -101,11 +110,12 @@ namespace ProjectRefToPackage
                 foreach (string l in libs)
                 {
                     string li = Path.GetFileNameWithoutExtension(l);
+                    logger_.LogMessage(MessageImportance.Low, $"Inspecting '{li}'");
                     string refProj = allProjects_.Find((p) => ((!string.IsNullOrWhiteSpace(p)) && File.Exists(p) && Path.GetFileNameWithoutExtension(p).Equals(li, StringComparison.OrdinalIgnoreCase)));
                     if (!string.IsNullOrWhiteSpace(refProj))
                     {
                         logger_.LogMessage($"Project {projectFile_}- Converting library reference '{refProj}' to Nuget package");
-                        packagesConfig_.Add(PackageIdPrefix + li);
+                        packagesConfig_.Add(PackageIdPrefix + li, packageVersion_);
                     }
                 }
             }
