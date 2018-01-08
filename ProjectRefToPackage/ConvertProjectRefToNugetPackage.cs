@@ -61,7 +61,7 @@ namespace ProjectRefToPackage
         public ITaskItem SolutionDir { get; set; }
 
         [Required]
-        public string[] AllProjects { get; set; }
+        public ITaskItem[] AllProjects { get; set; }
 
         public ITaskItem[] Properties { get; set; }
 

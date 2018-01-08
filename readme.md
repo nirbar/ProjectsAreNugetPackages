@@ -31,8 +31,10 @@
 - ConvertProjectRefToNugetPackage: One-time task to convert project refrences and library inputs to Nuget dependencies
   - Inputs:
     - Projects [Required]: Item list with all projects to convert.
-	- AllProjects [Required]: string list with all projects
+	- AllProjects [Required]: Item list with all projects. May contain 'Alias' metadata if project file name does not equal the library refernce name.
+	- Properties: List of items with Key=Value pairs to set on project when loading it to resolve refernces.
 	- PackageIdPrefix: Prefix to project names as Nuget dependencies. See property NugetIdPrefix.
+	- PackageVersion: Version of projects' NuGet dependencies.
 - ResolveDependants: Resolve build order according to Nuget dependants
   - Inputs:
     - DependecyProject [Required]: The target project to build.

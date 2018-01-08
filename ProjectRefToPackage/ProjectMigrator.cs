@@ -13,13 +13,13 @@ namespace ProjectRefToPackage
         Project project_;
         string projectFile_;
         string projectFolder_;
-        List<string> allProjects_;
+        HashSet<ITaskItem> allProjects_;
         PackagesConfig packagesConfig_;
         Dictionary<string, string> globalProps_;
         TaskLoggingHelper logger_;
         string packageVersion_;
 
-        public ProjectMigrator(TaskLoggingHelper logger, string prjFile, string[] allProjects, Dictionary<string, string> globalProps, string packageVersion)
+        public ProjectMigrator(TaskLoggingHelper logger, string prjFile, ITaskItem[] allProjects, Dictionary<string, string> globalProps, string packageVersion)
         {
             logger_ = logger;
             packageVersion_ = packageVersion;
@@ -27,7 +27,7 @@ namespace ProjectRefToPackage
             {
                 throw new FileNotFoundException(prjFile);
             }
-            allProjects_ = new List<string>(allProjects);
+            allProjects_ = new HashSet<ITaskItem>(allProjects);
 
 
             projectFile_ = prjFile;
@@ -73,10 +73,11 @@ namespace ProjectRefToPackage
                 {
                     string li = Path.GetFileNameWithoutExtension(l);
                     logger_.LogMessage(MessageImportance.Low, $"Inspecting '{li}'");
-                    string refProj = allProjects_.Find((p) => ((!string.IsNullOrWhiteSpace(p)) && File.Exists(p) && Path.GetFileNameWithoutExtension(p).Equals(li, StringComparison.OrdinalIgnoreCase)));
-                    if (!string.IsNullOrWhiteSpace(refProj))
+
+                    ITaskItem refProj = allProjects_.FirstOrDefault((p) => IsTaskItemReferenced(p, li));                    
+                    if (refProj != null)
                     {
-                        logger_.LogMessage($"Project {projectFile_}- Converting library reference '{refProj}' to Nuget package");
+                        logger_.LogMessage($"Project {projectFile_}- Converting library reference '{refProj.ItemSpec}' to Nuget package");
                         packagesConfig_.Add(PackageIdPrefix + li, packageVersion_);
                     }
                 }
@@ -92,10 +93,10 @@ namespace ProjectRefToPackage
                     {
                         string li = Path.GetFileNameWithoutExtension(l);
                         logger_.LogMessage(MessageImportance.Low, $"Inspecting '{li}'");
-                        string refProj = allProjects_.Find((p) => ((!string.IsNullOrWhiteSpace(p)) && File.Exists(p) && Path.GetFileNameWithoutExtension(p).Equals(li, StringComparison.OrdinalIgnoreCase)));
-                        if (!string.IsNullOrWhiteSpace(refProj))
+                        ITaskItem refProj = allProjects_.FirstOrDefault((p) => IsTaskItemReferenced(p, li));
+                        if (refProj != null)
                         {
-                            logger_.LogMessage($"Project {projectFile_}- Converting library reference '{refProj}' to Nuget package");
+                            logger_.LogMessage($"Project {projectFile_}- Converting library reference '{refProj.ItemSpec}' to Nuget package");
                             packagesConfig_.Add(PackageIdPrefix + li, packageVersion_);
                         }
                     }
@@ -111,10 +112,10 @@ namespace ProjectRefToPackage
                 {
                     string li = Path.GetFileNameWithoutExtension(l);
                     logger_.LogMessage(MessageImportance.Low, $"Inspecting '{li}'");
-                    string refProj = allProjects_.Find((p) => ((!string.IsNullOrWhiteSpace(p)) && File.Exists(p) && Path.GetFileNameWithoutExtension(p).Equals(li, StringComparison.OrdinalIgnoreCase)));
-                    if (!string.IsNullOrWhiteSpace(refProj))
+                    ITaskItem refProj = allProjects_.FirstOrDefault((p) => IsTaskItemReferenced(p, li));
+                    if (refProj != null)
                     {
-                        logger_.LogMessage($"Project {projectFile_}- Converting library reference '{refProj}' to Nuget package");
+                        logger_.LogMessage($"Project {projectFile_}- Converting library reference '{refProj.ItemSpec}' to Nuget package");
                         packagesConfig_.Add(PackageIdPrefix + li, packageVersion_);
                     }
                 }
@@ -126,5 +127,27 @@ namespace ProjectRefToPackage
         }
 
         public string PackageIdPrefix { get; internal set; }
+
+        private bool IsTaskItemReferenced(ITaskItem item, string libDependency)
+        {
+            string pp = item.GetMetadata("FullPath");
+            if (string.IsNullOrEmpty(pp) || !File.Exists(pp))
+            {
+                return false;
+            }
+
+            if (Path.GetFileNameWithoutExtension(pp).Equals(libDependency, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            string alias = item.GetMetadata("Alias");
+            if (!string.IsNullOrEmpty(alias) && alias.Equals(libDependency, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 }
