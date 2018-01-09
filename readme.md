@@ -16,6 +16,7 @@
   - 'local' on non-official release builds
   - 'localdebug' on non-official debug builds
   - nothing on release official builds
+- NugetId: Package Id. Defaults to project file name.
 - NugetIdPrefix: Package prefix. Used to distinguish project dependencies from available packages on nuget.org
 - NugetBuildFolder: Tagret folder for Nuget packages. Expected to exist in nuget.config file.
 - NugetSource: URL to nuget source to add packages to on UploadNugetPackage target
@@ -25,6 +26,10 @@
 
 - NugetPackProperty: key=value pairs to pass as properties to Nuget pack command.
 - NugetUpdateSource: List of nuget URLs to update from. Defaults to NugetBuildFolder and NugetSource.
+
+## Custom Imports
+
+Customization properties can be placed in solution folder and/or project folder in file 'ProjectsAreNugetPackages.custom.props' 
 
 ## Tasks
 

@@ -20,7 +20,7 @@
   </Target>
 
   <Target Name="NugetInstallUpdate" Condition="Exists('$(MSBuildProjectDirectory)\packages.config')">
-    <NuGetInstall Package="$(MSBuildProjectDirectory)\packages.config" ToolPath="$(NugetToolPath)" SolutionDirectory="$(SolutionDir)" PreRelease="$(NugetUpdatePreRelease)" ConfigFile="$(NugetConfig)" ContinueOnError='true' />
+    <NuGetInstall Package="$(MSBuildProjectDirectory)\packages.config" ToolPath="$(NugetToolPath)" OutputDirectory="$(SolutionDir)packages" PreRelease="$(NugetUpdatePreRelease)" ConfigFile="$(NugetConfig)" ContinueOnError='true' />
 
     <XmlPeek XmlInputPath="$(MSBuildProjectDirectory)\packages.config" Query='//package[starts-with(@id, "$(NugetIdPrefix)")]/@id'>
       <Output TaskParameter="Result" ItemName="AnyLocalPackage"/>
@@ -31,8 +31,8 @@
   <!-- Upload built nuget package to version repo -->
   <Target Name="UploadNugetPackage">
     <PropertyGroup>
-      <NugetPackage Condition="'$(NuspecVersionSuffix)'!=''">$(NugetBuildFolder)\$(NugetIdPrefix)$(MSBuildProjectName).$(NuspecVersion)-$(NuspecVersionSuffix).nupkg</NugetPackage>
-      <NugetPackage Condition="'$(NuspecVersionSuffix)'==''">$(NugetBuildFolder)\$(NugetIdPrefix)$(MSBuildProjectName).$(NuspecVersion).nupkg</NugetPackage>
+      <NugetPackage Condition="'$(NuspecVersionSuffix)'!=''">$(NugetBuildFolder)\$(NugetIdPrefix)$(NugetId).$(NuspecVersion)-$(NuspecVersionSuffix).nupkg</NugetPackage>
+      <NugetPackage Condition="'$(NuspecVersionSuffix)'==''">$(NugetBuildFolder)\$(NugetIdPrefix)$(NugetId).$(NuspecVersion).nupkg</NugetPackage>
     </PropertyGroup>
     <Exec Command='"$(NugetToolPath)\Nuget.exe" add "$(NugetPackage)" -ConfigFile "$(NugetConfig)" -Source "$(NugetSource)"' Condition="Exists('$(NugetPackage)')"/>
   </Target>
@@ -49,12 +49,12 @@
   <!-- Pack nuget with parameters -->
   <ItemGroup>
     <NugetPackProperty Include="Configuration=$(Configuration)"/>
-    <NugetPackProperty Include="id=$(NugetIdPrefix)$(MSBuildProjectName)"/>
+    <NugetPackProperty Include="id=$(NugetIdPrefix)$(NugetId)"/>
     <NugetPackProperty Include="prefix=$(NugetIdPrefix)"/>
-    <NugetPackProperty Include="title=$(NugetManufacturer) $(MSBuildProjectName)"/>
+    <NugetPackProperty Include="title=$(NugetManufacturer) $(NugetId)"/>
     <NugetPackProperty Include="author=$(NugetManufacturer)"/>
-    <NugetPackProperty Include="projectUrl=$(MSBuildProjectName)"/>
-    <NugetPackProperty Include="description=$(NugetManufacturer) $(MSBuildProjectName)"/>
+    <NugetPackProperty Include="projectUrl=$(NugetId)"/>
+    <NugetPackProperty Include="description=$(NugetManufacturer) $(NugetId)"/>
     <NugetPackProperty Include="OutDir=$(OutDir.Replace('\\', '\'))"/>
     <NugetPackProperty Include="OutDirLib=$(OutDirLib.Replace('\\', '\'))"/>
     <NugetPackProperty Include="IntDir=$(IntDir.Replace('\\', '\'))"/>
@@ -64,9 +64,9 @@
   </ItemGroup>
 
   <Target Name="CreateNugetPackage" AfterTargets="_EnsureNugetSpec" Condition="'$(BuildNugetPackage.ToLower())'=='true'">
-    <Copy DestinationFiles="$(IntDir)$(NugetIdPrefix)$(MSBuildProjectName).targets" SourceFiles="$(MSBuildThisFileDirectory)\native-nuget-targets.xml" Condition="'$(MSBuildProjectExtension)'=='.vcxproj'" />
-    <Copy DestinationFiles="$(IntDir)$(NugetIdPrefix)$(MSBuildProjectName).targets" SourceFiles="$(MSBuildThisFileDirectory)\net-nuget-targets.xml" Condition="'$(MSBuildProjectExtension)'!='.vcxproj'" />
-    <FileUpdate Files="$(IntDir)$(NugetIdPrefix)$(MSBuildProjectName).targets" Regex="!id!" ReplacementText="$(MSBuildProjectName.Replace('.','_'))" />
+    <Copy DestinationFiles="$(IntDir)$(NugetIdPrefix)$(NugetId).targets" SourceFiles="$(MSBuildThisFileDirectory)\native-nuget-targets.xml" Condition="'$(MSBuildProjectExtension)'=='.vcxproj'" />
+    <Copy DestinationFiles="$(IntDir)$(NugetIdPrefix)$(NugetId).targets" SourceFiles="$(MSBuildThisFileDirectory)\net-nuget-targets.xml" Condition="'$(MSBuildProjectExtension)'!='.vcxproj'" />
+    <FileUpdate Files="$(IntDir)$(NugetIdPrefix)$(NugetId).targets" Regex="!id!" ReplacementText="$(NugetId.Replace('.','_'))" />
     <NuGetPack File="$(NuSpecPath)" OutputDirectory="$(NugetBuildFolder)" Version="$(NuspecVersion)" Suffix="$(NuspecVersionSuffix)" Build="false" Properties="@(NugetPackProperty);VersionTags=@(VersionTag->'%(Identity)', ' ') $(VersionTag)" IncludeReferencedProjects="false" BasePath="$(MSBuildProjectDirectory)" ExcludeEmptyDirectories="false" ToolPath="$(NugetToolPath)"/>
   </Target>
 </Project>

@@ -18,6 +18,11 @@
     <file src="$OutDir$$ProjectName$.lib*" target="lib" />
     <file src="$OutDirLib$$ProjectName$.lib*" target="lib" />
     <file src="$OutDir$$ProjectName$.pdb*" target="lib" />
+    <file src="$OutDir$$id$.exe*" target="lib" />
+    <file src="$OutDir$$id$.dll*" target="lib" />
+    <file src="$OutDir$$id$.lib*" target="lib" />
+    <file src="$OutDirLib$$id$.lib*" target="lib" />
+    <file src="$OutDir$$id$.pdb*" target="lib" />
     <file src="$IntDir$$id$.targets" target="build" />
   </files>                              
 </package>                              
