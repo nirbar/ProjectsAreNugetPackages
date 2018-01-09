@@ -70,12 +70,22 @@ namespace ProjectRefToPackage
             {
                 allProjReferences.Add(i);
                 string refProj = i.GetMetadataValue("FullPath");
-
-                if (!string.IsNullOrWhiteSpace(refProj) && File.Exists(refProj))
+                if (string.IsNullOrWhiteSpace(refProj) || !File.Exists(refProj))
                 {
-                    logger_.LogMessage($"Project {projectFile_}- Converting project reference '{refProj}' to Nuget package");
-                    packagesConfig_.Add(PackageIdPrefix + Path.GetFileNameWithoutExtension(refProj), packageVersion_);
+                    logger_.LogWarning($"File not found for project reference {i.UnevaluatedInclude}");
+                    continue;
                 }
+
+                // Resolve project to package alias
+                string alias = Path.GetFileNameWithoutExtension(refProj);
+                ITaskItem refProjItem = allProjects_.FirstOrDefault((ii) => refProj.Equals(ii.GetMetadata("FullPath")));
+                if (refProjItem != null)
+                {
+                    alias = PackagesConfig.GetProjectId(refProjItem);
+                }
+
+                logger_.LogMessage($"Project {projectFile_}- Converting library reference '{refProj}' to Nuget package '{PackageIdPrefix + alias}' version {packageVersion_}");
+                packagesConfig_.Add(PackageIdPrefix + alias, packageVersion_);
             }
 
             foreach (ProjectItem i in project_.GetItemsIgnoringCondition("Link"))
@@ -133,17 +143,10 @@ namespace ProjectRefToPackage
                     continue;
                 }
 
-                if (Path.GetFileNameWithoutExtension(pp).Equals(libName, StringComparison.OrdinalIgnoreCase))
-                {
-                    logger_.LogMessage($"Project {projectFile_}- Converting library reference '{i.ItemSpec}' to Nuget package");
-                    packagesConfig_.Add(PackageIdPrefix + libName, packageVersion_);
-                    break;
-                }
-
-                string alias = i.GetMetadata("Alias");
+                string alias = PackagesConfig.GetProjectId(i);
                 if (!string.IsNullOrEmpty(alias) && alias.Equals(libName, StringComparison.OrdinalIgnoreCase))
                 {
-                    logger_.LogMessage($"Project {projectFile_}- Converting library reference '{i.ItemSpec}' to Nuget package '{alias}'");
+                    logger_.LogMessage($"Project {projectFile_}- Converting library reference '{i.ItemSpec}' to Nuget package '{PackageIdPrefix + alias}' version {packageVersion_}");
                     packagesConfig_.Add(PackageIdPrefix + alias, packageVersion_);
                     break;
                 }

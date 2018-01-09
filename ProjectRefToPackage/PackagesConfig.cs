@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Build.Framework;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -144,6 +145,16 @@ namespace ProjectRefToPackage
         {
             EnsureExists();
             xmlDoc_.Save(packagesConfigFile_);
+        }
+
+        public static string GetProjectId(ITaskItem projItem)
+        {
+            string alias = projItem.GetMetadata("Alias");
+            if (string.IsNullOrWhiteSpace(alias))
+            {
+                alias = Path.GetFileNameWithoutExtension(projItem.ItemSpec);
+            }
+            return alias;
         }
     }
 }

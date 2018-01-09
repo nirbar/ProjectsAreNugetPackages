@@ -55,7 +55,7 @@ namespace ProjectRefToPackage
                     }
 
                     // Project already handled?
-                    string projId = PackageIdPrefix + Path.GetFileNameWithoutExtension(projPath);
+                    string projId = PackageIdPrefix + PackagesConfig.GetProjectId(p);
                     if (projPackages.ContainsKey(projId))
                     {
                         continue;
@@ -82,12 +82,12 @@ namespace ProjectRefToPackage
                     }
                 }
 
-                string targetId = PackageIdPrefix + Path.GetFileNameWithoutExtension(targetProject);
+                string targetId = PackageIdPrefix + PackagesConfig.GetProjectId(DependecyProject);
                 HashSet<PackagesConfig> buildSet = new HashSet<PackagesConfig>();
                 foreach (PackagesConfig pc in projPackages.Values)
                 {
                     List<string> pcDep = pc.ResolveRecursiveDependencies(projPackages);
-                    if (pcDep.Contains(targetId) && projPackages.ContainsKey(pc.Id) && !buildSet.Contains(pc))
+                    if (pcDep.Contains(targetId) && !buildSet.Contains(pc))
                     {
                         Log.LogMessage(MessageImportance.Low, $"Build requires '{pc.Id}'.");
                         buildSet.Add(pc);
