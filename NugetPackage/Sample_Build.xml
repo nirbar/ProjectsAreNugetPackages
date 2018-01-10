@@ -14,15 +14,11 @@
     -# Execute target 'OneTime_ConvertProjectRefToNugetPackage'
     
     Routine builds:
-    -# Execute target 'Build'
+    -# Execute target 'Build'. Optionally after a successful build, execute target 'Upload' to add packages to Nuget repository
       - Set 'TargetProject' property from command line
       - Set 'NuspecVersion' property from command line
       - Specify multi-processor flag to enable parallel builds.
-    -# Execute target 'Upload' to add packages to Nuget repository
-      - Set 'TargetProject' property from command line
-      - Set 'NuspecVersion' property from command line
-      - Specify multi-processor flag to enable parallel uploads.
-       ==========================================================-->
+   ==========================================================-->
 
   <ItemGroup>
     <CsProjects Include="..\**\*.csproj">
@@ -37,7 +33,7 @@
   </ItemGroup>
   
   <!-- Let projects override properties, exclude projects from build etc. -->    
-  <Import Project="..\**\BuildAll.props"/>
+  <Import Project="..\..\..\**\BuildAll.props"/>
 
   <PropertyGroup>
     <TargetProject>..\ConsoleApplication1\ConsoleApplication1.vcxproj</TargetProject>
