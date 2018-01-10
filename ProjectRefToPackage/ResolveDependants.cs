@@ -62,16 +62,14 @@ namespace ProjectRefToPackage
                     }
 
                     // package.config file exists?
-                    string pkgCfg = Path.Combine(Path.GetDirectoryName(projPath), "packages.config");
-                    if (!File.Exists(pkgCfg))
+                    PackagesConfig pc = PackagesConfig.Create(p, PackageIdPrefix);
+                    if (pc == null)
                     {
-                        Log.LogMessage(MessageImportance.Low, $"File not found '{pkgCfg}'.");
+                        Log.LogMessage(MessageImportance.Low, $"Can't find packages.config file for '{p.ItemSpec}'.");
                         continue;
                     }
 
-                    Log.LogMessage(MessageImportance.Low, $"Parsing '{pkgCfg}'.");
-                    PackagesConfig pc = new PackagesConfig(pkgCfg);
-                    pc.PackageIdPrefix = PackageIdPrefix;
+                    Log.LogMessage(MessageImportance.Low, $"Parsing dependencies of '{p.ItemSpec}'.");
                     projPackages[projId] = pc;
                     pkg2Items[pc] = p;
 

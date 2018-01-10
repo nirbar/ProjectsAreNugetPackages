@@ -12,20 +12,23 @@ namespace ProjectRefToPackage
     class PackagesConfig
     {
         string packagesConfigFile_;
+        string alias_;
         XmlDocument xmlDoc_;
 
-        public string PackageIdPrefix { get; internal set; }
+        public string PackageIdPrefix { get; private set; }
 
-        public PackagesConfig(string file)
+        private PackagesConfig(string packagesConfigFile, string alias, string packageIdPrefix)
         {
-            packagesConfigFile_ = file;
+            packagesConfigFile_ = packagesConfigFile;
+            alias_ = alias;
+            PackageIdPrefix = packageIdPrefix;
         }
 
         public string Id
         {
             get
             {
-                return PackageIdPrefix + Path.GetFileName(Path.GetDirectoryName(packagesConfigFile_));
+                return PackageIdPrefix + alias_;
             }
         }
 
@@ -155,6 +158,30 @@ namespace ProjectRefToPackage
                 alias = Path.GetFileNameWithoutExtension(projItem.ItemSpec);
             }
             return alias;
+        }
+
+        public static PackagesConfig Create(ITaskItem projItem, string packageIdPrefix)
+        {
+            string projFile = projItem.GetMetadata("FullPath");
+            if (string.IsNullOrWhiteSpace(projFile) || !File.Exists(projFile))
+            {
+                return null;
+            }
+
+            string projFolder = Path.GetDirectoryName(projFile);
+            string projName = Path.GetFileNameWithoutExtension(projFile);
+            string pkgCfgPath = Path.Combine(projFolder, $"packages.{projName}.config");
+            if (!File.Exists(pkgCfgPath))
+            {
+                pkgCfgPath = Path.Combine(projFolder, "packages.config");
+            }
+            if (!File.Exists(pkgCfgPath))
+            {
+                return null;
+            }
+
+            string alias = GetProjectId(projItem);
+            return new PackagesConfig(pkgCfgPath, alias, packageIdPrefix);
         }
     }
 }

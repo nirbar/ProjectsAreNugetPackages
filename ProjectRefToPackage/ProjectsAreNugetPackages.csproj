@@ -80,6 +80,6 @@
     <GitVersion LocalPath="$(MSBuildProjectDirectory)" ToolPath="$(GitBinFolder)" Short="False">
       <Output TaskParameter="CommitHash" PropertyName="GitHash" />
     </GitVersion>
-    <NuGetPack File="$(SolutionDir)NugetPackage\ProjectsAreNugetPackages.nuspec" OutputDirectory="$(OutDir)..\Nuget\" Build="false" IncludeReferencedProjects="false" BasePath="$(SolutionDir)NugetPackage\" ExcludeEmptyDirectories="true" ToolPath="$(SolutionDir)packages\NuGet.CommandLine.4.4.1\tools\" />
+    <NuGetPack File="$(SolutionDir)NugetPackage\ProjectsAreNugetPackages.nuspec" OutputDirectory="$(OutDir)..\Nuget\" Build="false" IncludeReferencedProjects="false" BasePath="$(SolutionDir)NugetPackage\" ExcludeEmptyDirectories="true" ToolPath="$(SolutionDir)packages\NuGet.CommandLine.4.4.1\tools\" Version="$(FullVersion)"/>
   </Target>
 </Project>

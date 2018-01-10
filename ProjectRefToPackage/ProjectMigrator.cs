@@ -11,8 +11,7 @@ namespace ProjectRefToPackage
     class ProjectMigrator
     {
         Project project_;
-        string projectFile_;
-        string projectFolder_;
+        ITaskItem projectItem_;
         HashSet<ITaskItem> allProjects_;
         PackagesConfig packagesConfig_;
         Dictionary<string, string> globalProps_;
@@ -22,6 +21,7 @@ namespace ProjectRefToPackage
         public ProjectMigrator(TaskLoggingHelper logger, ITaskItem proj, ITaskItem[] allProjects, string packageVersion)
         {
             logger_ = logger;
+            projectItem_ = proj;
             packageVersion_ = packageVersion;
             string prjFile = proj.GetMetadata("FullPath");
             if (string.IsNullOrWhiteSpace(prjFile) || !File.Exists(prjFile))
@@ -30,7 +30,6 @@ namespace ProjectRefToPackage
             }
             allProjects_ = new HashSet<ITaskItem>(allProjects);
 
-            projectFile_ = prjFile;
             globalProps_ = new Dictionary<string, string>();
             if (!globalProps_.ContainsKey("SolutionDir"))
             {
@@ -50,21 +49,19 @@ namespace ProjectRefToPackage
                     globalProps_[k] = v;
                 }
             }
-        }
 
-        private void Initialize()
-        {
-            projectFolder_ = Path.GetDirectoryName(projectFile_);
-            packagesConfig_ = new PackagesConfig(Path.Combine(projectFolder_, "packages.config"));
-            packagesConfig_.PackageIdPrefix = PackageIdPrefix;
-            project_ = new Project(projectFile_, globalProps_, null);
+            packagesConfig_ = PackagesConfig.Create(projectItem_, PackageIdPrefix);
+            if (packagesConfig_ == null)
+            {
+                logger_.LogWarning($"Can't resolve package.config file for '{projectItem_.ItemSpec}");
+            }
+            string projectFile = projectItem_.GetMetadata("FullPath");
+            project_ = new Project(projectFile, globalProps_, null);
         }
 
         public void MigrateProjectReferences()
         {
             List<ProjectItem> allProjReferences = new List<ProjectItem>();
-
-            Initialize();
 
             foreach (ProjectItem i in project_.GetItemsIgnoringCondition("ProjectReference"))
             {
@@ -84,7 +81,7 @@ namespace ProjectRefToPackage
                     alias = PackagesConfig.GetProjectId(refProjItem);
                 }
 
-                logger_.LogMessage($"Project {projectFile_}- Converting library reference '{refProj}' to Nuget package '{PackageIdPrefix + alias}' version {packageVersion_}");
+                logger_.LogMessage($"Project {projectItem_.ItemSpec}- Converting library reference '{refProj}' to Nuget package '{PackageIdPrefix + alias}' version {packageVersion_}");
                 packagesConfig_.Add(PackageIdPrefix + alias, packageVersion_);
             }
 
@@ -146,7 +143,7 @@ namespace ProjectRefToPackage
                 string alias = PackagesConfig.GetProjectId(i);
                 if (!string.IsNullOrEmpty(alias) && alias.Equals(libName, StringComparison.OrdinalIgnoreCase))
                 {
-                    logger_.LogMessage($"Project {projectFile_}- Converting library reference '{i.ItemSpec}' to Nuget package '{PackageIdPrefix + alias}' version {packageVersion_}");
+                    logger_.LogMessage($"Project {projectItem_.ItemSpec}- Converting library reference '{i.ItemSpec}' to Nuget package '{PackageIdPrefix + alias}' version {packageVersion_}");
                     packagesConfig_.Add(PackageIdPrefix + alias, packageVersion_);
                     break;
                 }
