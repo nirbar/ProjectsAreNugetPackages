@@ -17,6 +17,14 @@
     <file target="lib" src="$OutDir$$ProjectName$.exe*" />
     <file target="lib" src="$OutDir$$ProjectName$.pdb*" />
     <file target="lib" src="$OutDir$$ProjectName$.metagen*" />
+    <file target="lib" src="$OutDir$$TargetName$.dll*" />
+    <file target="lib" src="$OutDir$$TargetName$.exe*" />
+    <file target="lib" src="$OutDir$$TargetName$.pdb*" />
+    <file target="lib" src="$OutDir$$TargetName$.metagen*" />
+    <file target="lib" src="$OutDir$$id$.dll*" />
+    <file target="lib" src="$OutDir$$id$.exe*" />
+    <file target="lib" src="$OutDir$$id$.pdb*" />
+    <file target="lib" src="$OutDir$$id$.metagen*" />
     <file target="build" src="$IntDir$$id$.targets" />
   </files>
 </package>

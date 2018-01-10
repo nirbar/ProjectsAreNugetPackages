@@ -18,6 +18,11 @@
     <file src="$OutDir$$ProjectName$.lib*" target="lib" />
     <file src="$OutDirLib$$ProjectName$.lib*" target="lib" />
     <file src="$OutDir$$ProjectName$.pdb*" target="lib" />
+    <file src="$OutDir$$TargetName$.exe*" target="lib" />
+    <file src="$OutDir$$TargetName$.dll*" target="lib" />
+    <file src="$OutDir$$TargetName$.lib*" target="lib" />
+    <file src="$OutDirLib$$TargetName$.lib*" target="lib" />
+    <file src="$OutDir$$TargetName$.pdb*" target="lib" />
     <file src="$OutDir$$id$.exe*" target="lib" />
     <file src="$OutDir$$id$.dll*" target="lib" />
     <file src="$OutDir$$id$.lib*" target="lib" />

@@ -55,11 +55,8 @@
     <NugetPackProperty Include="author=$(NugetManufacturer)"/>
     <NugetPackProperty Include="projectUrl=$(NugetId)"/>
     <NugetPackProperty Include="description=$(NugetManufacturer) $(NugetId)"/>
-    <NugetPackProperty Include="OutDir=$(OutDir.Replace('\\', '\'))"/>
-    <NugetPackProperty Include="OutDirLib=$(OutDirLib.Replace('\\', '\'))"/>
-    <NugetPackProperty Include="IntDir=$(IntDir.Replace('\\', '\'))"/>
-    <NugetPackProperty Include="RootDir=$(SolutionDir.Replace('\\', '\'))"/>
     <NugetPackProperty Include="ProjectName=$(MSBuildProjectName)"/>
+    <NugetPackProperty Include="TargetName=$(TargetName)"/>
     <NugetPackProperty Include="MyDir=$(MSBuildThisFileDirectory)"/>
   </ItemGroup>
 
@@ -67,6 +64,27 @@
     <Copy DestinationFiles="$(IntDir)$(NugetIdPrefix)$(NugetId).targets" SourceFiles="$(MSBuildThisFileDirectory)\native-nuget-targets.xml" Condition="'$(MSBuildProjectExtension)'=='.vcxproj'" />
     <Copy DestinationFiles="$(IntDir)$(NugetIdPrefix)$(NugetId).targets" SourceFiles="$(MSBuildThisFileDirectory)\net-nuget-targets.xml" Condition="'$(MSBuildProjectExtension)'!='.vcxproj'" />
     <FileUpdate Files="$(IntDir)$(NugetIdPrefix)$(NugetId).targets" Regex="!id!" ReplacementText="$(NugetId.Replace('.','_'))" />
+
+    <ConvertToAbsolutePath Paths="$(OutDir)">
+      <Output TaskParameter="AbsolutePaths" PropertyName="_OutDirFullPath"/>
+    </ConvertToAbsolutePath>
+    <ConvertToAbsolutePath Paths="$(OutDirLib)">
+      <Output TaskParameter="AbsolutePaths" PropertyName="_OutDirLibFullPath"/>
+    </ConvertToAbsolutePath>
+    <ConvertToAbsolutePath Paths="$(IntDir)">
+      <Output TaskParameter="AbsolutePaths" PropertyName="_IntDirFullPath"/>
+    </ConvertToAbsolutePath>
+    <ConvertToAbsolutePath Paths="$(RootDir)">
+      <Output TaskParameter="AbsolutePaths" PropertyName="_RootDirFullPath"/>
+    </ConvertToAbsolutePath>
+
+    <ItemGroup>
+      <NugetPackProperty Include="OutDir=$(_OutDirFullPath)"/>
+      <NugetPackProperty Include="OutDirLib=$(_OutDirLibFullPath)"/>
+      <NugetPackProperty Include="IntDir=$(_IntDirFullPath)"/>
+      <NugetPackProperty Include="RootDir=$(_RootDirFullPath)"/>
+    </ItemGroup>
+
     <NuGetPack File="$(NuSpecPath)" OutputDirectory="$(NugetBuildFolder)" Version="$(NuspecVersion)" Suffix="$(NuspecVersionSuffix)" Build="false" Properties="@(NugetPackProperty);VersionTags=@(VersionTag->'%(Identity)', ' ') $(VersionTag)" IncludeReferencedProjects="false" BasePath="$(MSBuildProjectDirectory)" ExcludeEmptyDirectories="false" ToolPath="$(NugetToolPath)"/>
   </Target>
 </Project>
