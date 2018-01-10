@@ -17,6 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NugetPackage", "NugetPackag
 		NugetPackage\ProjectsAreNugetPackages.targets = NugetPackage\ProjectsAreNugetPackages.targets
 		NugetPackage\ProjectsAreNugetPackages.tasks = NugetPackage\ProjectsAreNugetPackages.tasks
 		readme.md = readme.md
+		NugetPackage\Sample_Build.xml = NugetPackage\Sample_Build.xml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoffmanGrahamScheduler", "CoffmanGrahamScheduler\CoffmanGrahamScheduler.csproj", "{14064800-31CE-4E12-9081-B7BCF3CCDC7C}"

@@ -65,7 +65,7 @@ Customization properties can be placed in solution folder and/or project folder 
 1. Create a local nuget.config file
   - Add source with relative path to local nuget build folder.
   - [Optional] Add source to organization's nuget repository.
-1. Create a file 'ToduBuild.custom.props' with these properties:
+1. Create a file 'TidyBuild.custom.props' with these properties:
   - NugetConfig
   - NugetIdPrefix
   - NuspecVersion
