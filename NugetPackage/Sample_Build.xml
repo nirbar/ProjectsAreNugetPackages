@@ -3,9 +3,9 @@
   <Import Project="$(MSBuildThisFileDirectory)..\build\ProjectsAreNugetPackages.targets"/>
 
   <!-- ==========================================================
-    Migration steps:
+    # Migration steps
     -# Install ProjectsAreNugetPackages to all projects
-    -# Execute target 'OneTimeInit'
+    -# Execute target 'OneTime_ConvertProjectRefToNugetPackage'
     -# Create/Update files:
       - TidyBuild.custom.props
       - Nuget.Config
@@ -13,11 +13,45 @@
       - Should upload packages to local nuget repository
     -# Execute target 'OneTime_ConvertProjectRefToNugetPackage'
     
-    Routine builds:
+    # Routine builds
     -# Execute target 'Build'. Optionally after a successful build, execute target 'Upload' to add packages to Nuget repository
-      - Set 'TargetProject' property from command line
-      - Set 'NuspecVersion' property from command line
-      - Specify multi-processor flag to enable parallel builds.
+      - Set 'TargetProject' and 'NuspecVersion' properties from command line
+      - Specify multi-processor flag to enable parallel builds.      
+      
+    # Git/Nuget Builds
+    The flow suggested below builds projects that have changed since last successful build on current branch.
+    On successful build, nuget packages are uploaded and git tag is created.
+    
+    ## Setup
+    - Each project is in separate Git repository
+    - Top Git repository includes all projects as submodules
+    - All projects have been migrated as outlined above
+    
+    ## Routine Builds
+    -# Find last successful build by git tag pattern. Get output to $(LastSuccessBuildTag)
+      ~~~~
+      git describe -tags -first-parent -match "BUILD-VERSION-*"
+      ~~~~
+    -# Detect which folders (=submodules) have changed since that build. Output to @(ChangedFoldersSinceLastSuccessfulBuild)
+      ~~~~
+      git log $(LastSuccessBuildTag).. -format="" -name-only
+      ~~~~
+    -# Get all projects that contain changes
+      ~~~~
+      <ItemGroup>
+        <ChangedProjectsSinceLastSuccessfulBuild Include="%(ChangedFoldersSinceLastSuccessfulBuild)\**\*.proj">
+          <Properties>Configuration=Release;Platform=Any CPU</Properties>
+        </ChangedProjectsSinceLastSuccessfulBuild>
+      </ItemGroup>
+      ~~~~
+    -# Build noramlly
+    -# Upload Nuget packages
+    -# Git tag
+      ~~~~
+      git tag "BUILD-VERSION-$(BuildNumber)"
+      git push -tags
+      ~~~~   
+    
    ==========================================================-->
 
   <ItemGroup>
