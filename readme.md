@@ -71,9 +71,8 @@ Customization properties can be placed in solution folder and/or project folder 
   - NuspecVersion
   - FullVersion (for TidyBuild)
   - [Optional] NugetSource
-1. Build all projects normally
 1. MSBuild all projects with target 'ConvertProjectRefToNugetPackage'
-1. Build again all projects.
+1. Build all projects normally
 1. Create build.xml file. Sample code:
 ~~~~~~~~~~~
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
