@@ -25,23 +25,7 @@ namespace ProjectRefToPackage
         {
             try
             {
-                if (cancel_)
-                {
-                    Log.LogMessage(MessageImportance.Low, "Exit on cancel signal");
-                    return false;
-                }
-
-                Dictionary<string, PackagesConfig> projPackages = new Dictionary<string, PackagesConfig>();
-                Dictionary<PackagesConfig, ITaskItem> pkg2Items = new Dictionary<PackagesConfig, ITaskItem>();
-
-                string targetProject = DependecyProject.GetMetadata("FullPath");
-                if (string.IsNullOrWhiteSpace(targetProject) || !File.Exists(targetProject))
-                {
-                    Log.LogError($"FullPath not found for target project {DependecyProject.ItemSpec}");
-                    return false;
-                }
-
-                Log.LogMessage(MessageImportance.Low, $"First project is '{DependecyProject.ItemSpec}'. All projects count is {AllProjects.Length}");
+                HashSet<PackagesConfig> allPackages = new HashSet<PackagesConfig>();
 
                 // Accumulate package dependencies for all projects.
                 foreach (ITaskItem p in AllProjects)
@@ -50,13 +34,13 @@ namespace ProjectRefToPackage
                     Log.LogMessage(MessageImportance.Low, $"Inspecting '{projPath}'.");
                     if (string.IsNullOrWhiteSpace(projPath) || !File.Exists(projPath))
                     {
-                        Log.LogWarning($"FullPath not found for target project {p.ItemSpec}");
+                        Log.LogWarning($"FullPath not found for project {p.ItemSpec}");
                         continue;
                     }
 
                     // Project already handled?
                     string projId = PackageIdPrefix + PackagesConfig.GetProjectId(p);
-                    if (projPackages.ContainsKey(projId))
+                    if (allPackages.Any((i) => projId.Equals(i.Id)))
                     {
                         continue;
                     }
@@ -70,8 +54,7 @@ namespace ProjectRefToPackage
                     }
 
                     Log.LogMessage(MessageImportance.Low, $"Parsing dependencies of '{p.ItemSpec}'.");
-                    projPackages[projId] = pc;
-                    pkg2Items[pc] = p;
+                    allPackages.Add(pc);
 
                     if (cancel_)
                     {
@@ -80,27 +63,14 @@ namespace ProjectRefToPackage
                     }
                 }
 
-                string targetId = PackageIdPrefix + PackagesConfig.GetProjectId(DependecyProject);
-                HashSet<PackagesConfig> buildSet = new HashSet<PackagesConfig>();
-                foreach (PackagesConfig pc in projPackages.Values)
+                HashSet<PackagesConfig> buildSet = ResolveProjectsToBuild(allPackages);
+                if (buildSet == null)
                 {
-                    List<string> pcDep = pc.ResolveRecursiveDependencies(projPackages);
-                    if (pcDep.Contains(targetId) && !buildSet.Contains(pc))
-                    {
-                        Log.LogMessage(MessageImportance.Low, $"Build requires '{pc.Id}'.");
-                        buildSet.Add(pc);
-                    }
-
-                    if (cancel_)
-                    {
-                        Log.LogMessage(MessageImportance.Low, "Exit on cancel signal");
-                        return false;
-                    }
+                    return false;
                 }
 
                 // Resolve projects build order.
-
-                List<TaskItem> orderded = SetBuildOrder(buildSet, pkg2Items);
+                List<TaskItem> orderded = ResolveBuildOrder(buildSet);
                 if (orderded == null)
                 {
                     return false;
@@ -123,19 +93,75 @@ namespace ProjectRefToPackage
             public override string ToString() => taskItem_.ItemSpec;
         };
 
-        private List<TaskItem> SetBuildOrder(HashSet<PackagesConfig> buildSet, Dictionary<PackagesConfig, ITaskItem> pkg2Items)
+        private HashSet<PackagesConfig> ResolveProjectsToBuild(HashSet<PackagesConfig> allPackages)
+        {
+            // Detect projects that depend on a target project.
+            bool buildAll = ((DependecyProjects == null) || (DependecyProjects.Count() == 0));
+            if (buildAll)
+            {
+                Log.LogMessage(MessageImportance.Low, "Building all projects since DependecyProjects list is empty");
+                return new HashSet<PackagesConfig>(allPackages);
+            }
+
+            HashSet<PackagesConfig> buildSet = new HashSet<PackagesConfig>();
+            foreach (ITaskItem depProj in DependecyProjects)
+            {
+                if (cancel_)
+                {
+                    Log.LogMessage(MessageImportance.Low, "Exit on cancel signal");
+                    return null;
+                }
+
+                string targetProject = depProj.GetMetadata("FullPath");
+                if (string.IsNullOrWhiteSpace(targetProject) || !File.Exists(targetProject))
+                {
+                    Log.LogError($"FullPath not found for target project {depProj.ItemSpec}");
+                    return null;
+                }
+
+                Log.LogMessage(MessageImportance.Low, $"Inspecting target project '{depProj.ItemSpec}'.");
+
+                PackagesConfig tgtPc = allPackages.FirstOrDefault((pc) => pc.ProjectTaskItem.GetMetadata("FullPath")?.Equals(targetProject) ?? false);
+                if (tgtPc == null)
+                {
+                    tgtPc = PackagesConfig.Create(depProj, PackageIdPrefix);
+                    allPackages.Add(tgtPc);
+                }
+
+                buildSet.Add(tgtPc);
+                foreach (PackagesConfig pc in allPackages)
+                {
+                    if (pc.Id == tgtPc.Id)
+                    {
+                        continue;
+                    }
+
+                    List<string> pcDep = pc.ResolveRecursiveDependencies(allPackages);
+                    if (pcDep.Contains(tgtPc.Id) && !buildSet.Contains(pc))
+                    {
+                        Log.LogMessage(MessageImportance.Low, $"Build requires '{pc.Id}'.");
+                        buildSet.Add(pc);
+                    }
+
+                    if (cancel_)
+                    {
+                        Log.LogMessage(MessageImportance.Low, "Exit on cancel signal");
+                        return null;
+                    }
+                }
+            }
+            return buildSet;
+        }
+
+        private List<TaskItem> ResolveBuildOrder(HashSet<PackagesConfig> buildSet)
         {
             HashSet<Vertex> vertices = new HashSet<Vertex>();
-
-            ITaskItem tgtPrj = AllProjects.FirstOrDefault((i) => (i.GetMetadata("FullPath") == DependecyProject.GetMetadata("FullPath")));
-            BuildItem tgtItem = new BuildItem();
-            tgtItem.taskItem_ = new TaskItem(tgtPrj);
 
             // Create vertex list
             foreach (PackagesConfig pc in buildSet)
             {
                 BuildItem bi = new BuildItem();
-                bi.taskItem_ = new TaskItem(pkg2Items[pc]);
+                bi.taskItem_ = new TaskItem(pc.ProjectTaskItem);
                 bi.pkgCfg_ = pc;
                 vertices.Add(bi);
             }
@@ -144,7 +170,6 @@ namespace ProjectRefToPackage
             foreach (Vertex v in vertices)
             {
                 BuildItem bi = v as BuildItem;
-                bi.Dependencies.Add(tgtItem);
                 bi.Dependencies.AddRange(
                     from vi in vertices
                     where ((vi != bi) && bi.pkgCfg_.Dependencies.Contains(((BuildItem)vi).pkgCfg_.Id))
@@ -152,11 +177,8 @@ namespace ProjectRefToPackage
                     );
             }
 
-            // Ordered list. Target project is first in line
+            // Ordered list of projects to build.
             List<TaskItem> orderded = new List<TaskItem>();
-
-            vertices.Add(tgtItem);
-
             if (ProcessorCount <= 0)
             {
                 ProcessorCount = Environment.ProcessorCount;
@@ -183,8 +205,7 @@ namespace ProjectRefToPackage
             cancel_ = true;
         }
 
-        [Required]
-        public ITaskItem DependecyProject { get; set; }
+        public ITaskItem[] DependecyProjects { get; set; }
 
         [Required]
         public ITaskItem[] AllProjects { get; set; }

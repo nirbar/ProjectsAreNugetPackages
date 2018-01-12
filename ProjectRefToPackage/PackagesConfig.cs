@@ -16,9 +16,11 @@ namespace ProjectRefToPackage
         XmlDocument xmlDoc_;
 
         public string PackageIdPrefix { get; private set; }
+        public ITaskItem ProjectTaskItem { get; private set; }
 
-        private PackagesConfig(string packagesConfigFile, string alias, string packageIdPrefix)
+        private PackagesConfig(ITaskItem projItem, string packagesConfigFile, string alias, string packageIdPrefix)
         {
+            ProjectTaskItem = projItem;
             packagesConfigFile_ = packagesConfigFile;
             alias_ = alias;
             PackageIdPrefix = packageIdPrefix;
@@ -76,7 +78,7 @@ namespace ProjectRefToPackage
         /// </summary>
         /// <param name="allProjPackages"></param>
         /// <returns></returns>
-        public List<string> ResolveRecursiveDependencies(Dictionary<string, PackagesConfig> allProjPackages)
+        public List<string> ResolveRecursiveDependencies(HashSet<PackagesConfig> allPackages)
         {
             if (impliedDependencies_ != null)
             {
@@ -88,12 +90,13 @@ namespace ProjectRefToPackage
             foreach (string dep in Dependencies)
             {
                 // Dependency is not a local project or has no dependencies of its own?
-                if (!allProjPackages.ContainsKey(dep))
+                PackagesConfig pcDep = allPackages.FirstOrDefault((pc) => dep.Equals(pc.Id));
+                if (pcDep == null)
                 {
                     continue;
                 }
 
-                List<string> depDep = allProjPackages[dep].ResolveRecursiveDependencies(allProjPackages);
+                List<string> depDep = pcDep.ResolveRecursiveDependencies(allPackages);
                 if (depDep.Contains(Id))
                 {
                     throw new Exception($"Cyclic dependency discovered {Id} <--> {dep}");
@@ -101,7 +104,7 @@ namespace ProjectRefToPackage
 
                 impliedDependencies_.AddRange(depDep);
             }
-            
+
             return impliedDependencies_;
         }
 
@@ -181,7 +184,7 @@ namespace ProjectRefToPackage
             }
 
             string alias = GetProjectId(projItem);
-            return new PackagesConfig(pkgCfgPath, alias, packageIdPrefix);
+            return new PackagesConfig(projItem, pkgCfgPath, alias, packageIdPrefix);
         }
     }
 }

@@ -9,9 +9,6 @@
     -# Create/Update files:
       - TidyBuild.custom.props
       - Nuget.Config
-    -# Execute regular build
-      - Should upload packages to local nuget repository
-    -# Execute target 'OneTime_ConvertProjectRefToNugetPackage'
     
     # Routine builds
     -# Execute target 'Build'. Optionally after a successful build, execute target 'Upload' to add packages to Nuget repository
@@ -79,18 +76,8 @@
     <MSBuild Projects="@(ProjectBuildOrder)" Targets="Rebuild" BuildInParallel="true"/>
   </Target>
 
-  <Target Name="_ResolveDependecyProjects">
-    <ConvertToAbsolutePath Paths="$(TargetProject)">
-      <Output TaskParameter="AbsolutePaths" PropertyName="TargetProjectAbsolute"/>
-    </ConvertToAbsolutePath>
-    <ItemGroup>
-      <DependecyProject Include="@(AllProjects)" Condition="'%(AllProjects.FullPath)'=='$(TargetProjectAbsolute)'"/>
-    </ItemGroup>
-    <Message Text="Target Projects: @(DependecyProject)" Importance="low"/>
-  </Target>
-
-  <Target Name="_ResolveBuildOrder" DependsOnTargets="_ResolveDependecyProjects">
-    <ResolveDependants DependecyProject="@(DependecyProject)" AllProjects="@(AllProjects)" PackageIdPrefix="HEX.">
+  <Target Name="_ResolveBuildOrder">
+    <ResolveDependants DependecyProjects="@(DependecyProject)" AllProjects="@(AllProjects)" PackageIdPrefix="Local.">
       <Output TaskParameter="DependantProjectsBuildOrdered" ItemName="ProjectBuildOrder" />
     </ResolveDependants>
     <Message Text="Projects: @(AllProjects)" Importance="low"/>
