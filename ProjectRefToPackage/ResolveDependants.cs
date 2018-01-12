@@ -124,6 +124,7 @@ namespace ProjectRefToPackage
                 PackagesConfig tgtPc = allPackages.FirstOrDefault((pc) => pc.ProjectTaskItem.GetMetadata("FullPath")?.Equals(targetProject) ?? false);
                 if (tgtPc == null)
                 {
+                    Log.LogWarning($"Did not find target project '{depProj.ItemSpec}' in AllProjects list. Have you defined item metadata DependecyProjects?");
                     tgtPc = PackagesConfig.Create(depProj, PackageIdPrefix);
                     allPackages.Add(tgtPc);
                 }

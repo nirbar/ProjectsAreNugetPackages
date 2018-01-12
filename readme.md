@@ -92,17 +92,18 @@ Customization properties can be placed in solution folder and/or project folder 
     <TargetProject>NativeDll1\NativeDll1.vcxproj</TargetProject>
   </PropertyGroup>
 
-  <Target Name="ResolveBuildOrder">
-    <ResolveDependants DependecyProject="$(TargetProject)" AllProjects="@(AllProjects)" PackageIdPrefix="Local.">
-      <Output TaskParameter="DependantProjectsBuildOrdered" ItemName="ProjectBuildOrder" />
-    </ResolveDependants>
-    <Message Text="Project parallel build in step %(ProjectBuildOrder.ParallelBuildLevel): @(ProjectBuildOrder)"/>
+  <!-- Build in batches defined by ParallelBuildLevel metadata created by ResolveDependants task -->
+  <Target Name="Build" DependsOnTargets="_ResolveBuildOrder" Inputs="@(ProjectBuildOrder)" Outputs="%(ParallelBuildLevel)\NeverExists">
+    <Exec Command='"$(MSBuildBinPath)\MSBuild.exe" "%(ProjectBuildOrder.FullPath)" "/Property:%(ProjectBuildOrder.Properties)" /Target:NugetInstallUpdate' />
+    <MSBuild Projects="@(ProjectBuildOrder)" Targets="Rebuild" BuildInParallel="true"/>
   </Target>
 
-  <!-- Build in batches defined by ParallelBuildLevel metadata created by ResolveDependants task -->
-  <Target Name="Build" DependsOnTargets="ResolveBuildOrder" Inputs="@(ProjectBuildOrder)" Outputs="%(ParallelBuildLevel)\NeverExists">
-    <Exec Command='"$(MSBuildBinPath)\MSBuild.exe" "%(ProjectBuildOrder.FullPath)" "/Property:%(ProjectBuildOrder.Properties)" /Target:NugetInstallUpdate' />
-    <MSBuild Projects="@(ProjectBuildOrder)" Targets="Rebuild" UnloadProjectsOnCompletion="true" BuildInParallel="true"/>
+  <Target Name="_ResolveBuildOrder">
+    <ResolveDependants DependecyProjects="$(TargetProject)" AllProjects="@(AllProjects)" PackageIdPrefix="Local.">
+      <Output TaskParameter="DependantProjectsBuildOrdered" ItemName="ProjectBuildOrder" />
+    </ResolveDependants>
+    <Message Text="Projects: @(AllProjects)" Importance="low"/>
+    <Message Text="Project parallel build in step %(ProjectBuildOrder.ParallelBuildLevel): @(ProjectBuildOrder)"/>
   </Target>
 </Project>
 ~~~~~~~~~~~
