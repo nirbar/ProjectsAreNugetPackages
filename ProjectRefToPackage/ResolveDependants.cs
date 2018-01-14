@@ -25,42 +25,10 @@ namespace ProjectRefToPackage
         {
             try
             {
-                HashSet<PackagesConfig> allPackages = new HashSet<PackagesConfig>();
-
-                // Accumulate package dependencies for all projects.
-                foreach (ITaskItem p in AllProjects)
+                HashSet<PackagesConfig> allPackages = GetAllPackages();
+                if (allPackages == null)
                 {
-                    string projPath = p.GetMetadata("FullPath");
-                    Log.LogMessage(MessageImportance.Low, $"Inspecting '{projPath}'.");
-                    if (string.IsNullOrWhiteSpace(projPath) || !File.Exists(projPath))
-                    {
-                        Log.LogWarning($"FullPath not found for project {p.ItemSpec}");
-                        continue;
-                    }
-
-                    // Project already handled?
-                    string projId = PackageIdPrefix + PackagesConfig.GetProjectId(p);
-                    if (allPackages.Any((i) => projId.Equals(i.Id)))
-                    {
-                        continue;
-                    }
-
-                    // package.config file exists?
-                    PackagesConfig pc = PackagesConfig.Create(p, PackageIdPrefix);
-                    if (pc == null)
-                    {
-                        Log.LogMessage(MessageImportance.Low, $"Can't find packages.config file for '{p.ItemSpec}'.");
-                        continue;
-                    }
-
-                    Log.LogMessage(MessageImportance.Low, $"Parsing dependencies of '{p.ItemSpec}'.");
-                    allPackages.Add(pc);
-
-                    if (cancel_)
-                    {
-                        Log.LogMessage(MessageImportance.Low, "Exit on cancel signal");
-                        return false;
-                    }
+                    return false;
                 }
 
                 HashSet<PackagesConfig> buildSet = ResolveProjectsToBuild(allPackages);
@@ -69,7 +37,6 @@ namespace ProjectRefToPackage
                     return false;
                 }
 
-                // Resolve projects build order.
                 List<TaskItem> orderded = ResolveBuildOrder(buildSet);
                 if (orderded == null)
                 {
@@ -179,7 +146,6 @@ namespace ProjectRefToPackage
             }
 
             // Ordered list of projects to build.
-            List<TaskItem> orderded = new List<TaskItem>();
             if (ProcessorCount <= 0)
             {
                 ProcessorCount = Environment.ProcessorCount;
@@ -187,6 +153,7 @@ namespace ProjectRefToPackage
             Graph g = Graph.CoffmanGraham(vertices, ProcessorCount);
 
             int l = 0;
+            List<TaskItem> orderded = new List<TaskItem>();
             foreach (HashSet<Vertex> level in g.Levels)
             {
                 foreach (Vertex v in level)
@@ -199,6 +166,49 @@ namespace ProjectRefToPackage
             }
 
             return orderded;
+        }
+
+        private HashSet<PackagesConfig> GetAllPackages()
+        {
+            HashSet<PackagesConfig> allPackages = new HashSet<PackagesConfig>();
+
+            // Accumulate package dependencies for all projects.
+            foreach (ITaskItem p in AllProjects)
+            {
+                string projPath = p.GetMetadata("FullPath");
+                Log.LogMessage(MessageImportance.Low, $"Inspecting '{projPath}'.");
+                if (string.IsNullOrWhiteSpace(projPath) || !File.Exists(projPath))
+                {
+                    Log.LogWarning($"FullPath not found for project {p.ItemSpec}");
+                    continue;
+                }
+
+                // Project already handled?
+                string projId = PackageIdPrefix + PackagesConfig.GetProjectId(p);
+                if (allPackages.Any((i) => projId.Equals(i.Id)))
+                {
+                    continue;
+                }
+
+                // package.config file exists?
+                PackagesConfig pc = PackagesConfig.Create(p, PackageIdPrefix);
+                if (pc == null)
+                {
+                    Log.LogMessage(MessageImportance.Low, $"Can't find packages.config file for '{p.ItemSpec}'.");
+                    continue;
+                }
+
+                Log.LogMessage(MessageImportance.Low, $"Parsing dependencies of '{p.ItemSpec}'.");
+                allPackages.Add(pc);
+
+                if (cancel_)
+                {
+                    Log.LogMessage(MessageImportance.Low, "Exit on cancel signal");
+                    return null;
+                }
+            }
+
+            return allPackages;
         }
 
         void ICancelableTask.Cancel()
